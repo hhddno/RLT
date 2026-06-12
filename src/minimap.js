@@ -51,12 +51,15 @@ export class MinimapEngine {
         this.boostPads = [];
         let numFrames = 0;
         
-        if (framesData && framesData.boost_pads) {
-            this.boostPads = framesData.boost_pads.map(pad => ({
-                x: pad.location.x,
-                y: pad.location.y,
-                isBig: pad.is_big
-            }));
+        if (framesData && framesData.boost_pads && Array.isArray(framesData.boost_pads)) {
+            this.boostPads = framesData.boost_pads.map(pad => {
+                const loc = pad.location || pad.loc || pad.Location || pad || {};
+                return {
+                    x: loc.x || loc.X || 0,
+                    y: loc.y || loc.Y || 0,
+                    isBig: pad.is_big !== undefined ? pad.is_big : (pad.isBig || false)
+                };
+            });
         }
         
         if (framesData && framesData.frame_data) {
