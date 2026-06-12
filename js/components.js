@@ -1,7 +1,3 @@
-// Use window.RLData instead of imports
-const PLAYERS = window.RLData.PLAYERS;
-const MATCHES = window.RLData.MATCHES;
-
 window.Components = {
     // Render a single match card
     MatchCard: (match) => {
@@ -33,8 +29,15 @@ window.Components = {
 
     // Render a player card
     PlayerCard: (player) => {
+        const isFav = window.Auth ? window.Auth.isFavorite('players', player.id) : false;
+        const favIconClass = isFav ? 'active' : '';
+        const heartIcon = isFav ? '<i data-lucide="heart" style="fill: var(--danger)"></i>' : '<i data-lucide="heart"></i>';
+
         return `
         <div class="player-card fade-in" data-id="${player.id}">
+            <button class="favorite-btn ${favIconClass}" onclick="window.app.toggleFavorite(event, 'players', '${player.id}')">
+                ${heartIcon}
+            </button>
             <img src="${player.avatar}" alt="${player.name}" class="player-avatar">
             <h3 class="player-name">${player.name}</h3>
             <span class="player-team">${player.team}</span>
@@ -58,7 +61,10 @@ window.Components = {
     },
 
     // Render Home View
-    HomeView: () => {
+    HomeView: async () => {
+        const PLAYERS = await window.Api.getPlayers();
+        const MATCHES = await window.Api.getMatches();
+
         const recentMatches = MATCHES.slice(0, 3).map(m => window.Components.MatchCard(m)).join('');
         const topPlayers = PLAYERS.slice(0, 4).map(p => window.Components.PlayerCard(p)).join('');
         
@@ -110,7 +116,8 @@ window.Components = {
     },
 
     // Render History View
-    HistoryView: () => {
+    HistoryView: async () => {
+        const MATCHES = await window.Api.getMatches();
         const allMatches = MATCHES.map(m => window.Components.MatchCard(m)).join('');
         return `
         <div class="section-header fade-in">
@@ -126,7 +133,8 @@ window.Components = {
     },
 
     // Render Players View
-    PlayersView: () => {
+    PlayersView: async () => {
+        const PLAYERS = await window.Api.getPlayers();
         const allPlayers = PLAYERS.map(p => window.Components.PlayerCard(p)).join('');
         return `
         <div class="section-header fade-in">
@@ -142,16 +150,23 @@ window.Components = {
     },
     
     // Render Player Detail View
-    PlayerDetailView: (playerId) => {
+    PlayerDetailView: async (playerId) => {
+        const PLAYERS = await window.Api.getPlayers();
         const player = PLAYERS.find(p => p.id === playerId);
         if(!player) return `<h2>Joueur introuvable</h2>`;
         
+        const isFav = window.Auth ? window.Auth.isFavorite('players', player.id) : false;
+        const heartIcon = isFav ? '<i data-lucide="heart" style="fill: var(--danger)"></i>' : '<i data-lucide="heart"></i>';
+
         return `
         <button class="btn-back fade-in" onclick="window.navigate('players')">
             <i data-lucide="arrow-left"></i> Retour aux joueurs
         </button>
         
-        <div class="detail-header fade-in">
+        <div class="detail-header fade-in" style="position: relative;">
+            <button class="favorite-btn ${isFav ? 'active' : ''}" style="top: 2rem; right: 2rem; width: 50px; height: 50px;" onclick="window.app.toggleFavorite(event, 'players', '${player.id}')">
+                ${heartIcon}
+            </button>
             <img src="${player.avatar}" alt="${player.name}" class="detail-avatar">
             <div class="detail-info">
                 <h1>${player.name}</h1>
@@ -203,10 +218,17 @@ window.Components = {
     },
 
     // Render Teams Standings View
-    TeamsView: () => {
-        const TEAMS = window.RLData.TEAMS || [];
-        const teamsList = TEAMS.sort((a, b) => a.rank - b.rank).map(t => `
-            <div class="match-item fade-in" style="justify-content: flex-start; gap: 2rem;">
+    TeamsView: async () => {
+        const TEAMS = await window.Api.getTeams();
+        const teamsList = TEAMS.sort((a, b) => a.rank - b.rank).map(t => {
+            const isFav = window.Auth ? window.Auth.isFavorite('teams', t.id) : false;
+            const heartIcon = isFav ? '<i data-lucide="heart" style="fill: var(--danger)"></i>' : '<i data-lucide="heart"></i>';
+
+            return `
+            <div class="match-item fade-in" style="justify-content: flex-start; gap: 2rem; position: relative;">
+                <button class="favorite-btn ${isFav ? 'active' : ''}" style="top: 50%; right: 1rem; transform: translateY(-50%);" onclick="window.app.toggleFavorite(event, 'teams', '${t.id}')">
+                    ${heartIcon}
+                </button>
                 <div style="font-size: 1.5rem; font-family: var(--font-heading); font-weight: bold; width: 40px; color: ${t.rank <= 3 ? 'var(--accent-orange)' : 'var(--text-muted)'}">#${t.rank}</div>
                 <div class="team-logo">${t.logo}</div>
                 <div style="flex: 1; display: flex; flex-direction: column;">
@@ -216,11 +238,12 @@ window.Components = {
                 <div class="stat-box" style="padding: 0.5rem 1rem; border: none; background: rgba(0, 229, 255, 0.1);">
                     <span style="font-weight: bold; color: var(--accent-blue)">${t.points} pts</span>
                 </div>
-                <div class="stat-box" style="padding: 0.5rem 1rem; border: none; background: rgba(0,0,0,0.3);">
+                <div class="stat-box" style="padding: 0.5rem 1rem; border: none; background: rgba(0,0,0,0.3); margin-right: 3rem;">
                     <span style="color: var(--text-muted)">Win Rate: <strong style="color: var(--text-main)">${t.winRate}%</strong></span>
                 </div>
             </div>
-        `).join('');
+            `
+        }).join('');
 
         return `
         <div class="section-header fade-in">
@@ -236,8 +259,8 @@ window.Components = {
     },
 
     // Render Match Detail View
-    MatchDetailView: (matchId) => {
-        const MATCHES = window.RLData.MATCHES || [];
+    MatchDetailView: async (matchId) => {
+        const MATCHES = await window.Api.getMatches();
         const match = MATCHES.find(m => m.id === matchId);
         if(!match) return `<h2>Match introuvable</h2>`;
 
@@ -259,6 +282,49 @@ window.Components = {
         } else {
             gamesHtml = `<p style="color: var(--text-muted); text-align: center; padding: 2rem;">Détails des manches non disponibles pour ce match.</p>`;
         }
+
+        // Mock a VOD URL
+        const vodIframe = `
+        <div style="margin-top: 2rem; text-align: center;">
+            <h2 style="font-family: var(--font-heading); margin-bottom: 1rem;">Rediffusion (VOD)</h2>
+            <iframe width="100%" height="450" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="RLCS VOD" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 12px; border: 1px solid var(--border-color);"></iframe>
+            <p style="color: var(--text-muted); margin-top: 1rem;">(Exemple de lecteur vidéo intégré)</p>
+        </div>
+        `;
+
+        // Predictions Section
+        const existingPrediction = window.Auth ? window.Auth.getPrediction(match.id) : null;
+        let predictionHtml = '';
+        
+        if (existingPrediction) {
+            predictionHtml = `
+            <div class="card" style="margin-top: 2rem; background: rgba(0, 229, 255, 0.05); border-color: var(--accent-blue);">
+                <h3 style="color: var(--accent-blue); margin-bottom: 1rem;"><i data-lucide="check-circle"></i> Votre Prédiction</h3>
+                <p>Vous avez prédit une victoire de <strong>${existingPrediction.winner}</strong> sur un score de <strong>${existingPrediction.score1} - ${existingPrediction.score2}</strong>.</p>
+            </div>
+            `;
+        } else {
+            predictionHtml = `
+            <div class="card" style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem;">Faire une prédiction</h3>
+                <div style="display: flex; gap: 1rem; align-items: center; justify-content: center;">
+                    <div style="text-align: center;">
+                        <div class="team-logo" style="margin: 0 auto 0.5rem auto;">${match.team1.logo}</div>
+                        <input type="number" id="pred-score1" min="0" max="4" style="width: 60px; padding: 0.5rem; text-align: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); color: white; border-radius: 8px;">
+                    </div>
+                    <span style="font-weight: bold; font-size: 1.5rem;">-</span>
+                    <div style="text-align: center;">
+                        <div class="team-logo" style="margin: 0 auto 0.5rem auto;">${match.team2.logo}</div>
+                        <input type="number" id="pred-score2" min="0" max="4" style="width: 60px; padding: 0.5rem; text-align: center; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); color: white; border-radius: 8px;">
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button class="btn-auth" onclick="window.app.savePrediction('${match.id}', '${match.team1.logo}', '${match.team2.logo}')">Valider mon pronostic</button>
+                </div>
+            </div>
+            `;
+        }
+
 
         return `
         <button class="btn-back fade-in" onclick="window.navigate('history')">
@@ -287,9 +353,15 @@ window.Components = {
             </div>
         </div>
 
-        <div class="card fade-in" style="animation-delay: 0.1s;">
-            <h2 style="font-family: var(--font-heading); margin-bottom: 1rem;">Détail des manches (Games)</h2>
-            ${gamesHtml}
+        <div class="dashboard-grid">
+            <div class="card fade-in col-span-8" style="animation-delay: 0.1s;">
+                <h2 style="font-family: var(--font-heading); margin-bottom: 1rem;">Détail des manches (Games)</h2>
+                ${gamesHtml}
+                ${vodIframe}
+            </div>
+            <div class="col-span-4 fade-in" style="animation-delay: 0.2s;">
+                ${predictionHtml}
+            </div>
         </div>
         `;
     }

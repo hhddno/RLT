@@ -26,6 +26,8 @@ class App {
         });
 
         this.attachSearchListener();
+        this.setupAuthListeners();
+        this.updateAuthUI();
 
         // Initial render
         this.render();
@@ -51,30 +53,30 @@ class App {
         // Fade out slightly
         this.container.style.opacity = '0.5';
         
-        setTimeout(() => {
+        setTimeout(async () => {
             let html = '';
             
             switch(this.currentView) {
                 case 'home':
-                    html = Components.HomeView();
+                    html = await Components.HomeView();
                     break;
                 case 'history':
-                    html = Components.HistoryView();
+                    html = await Components.HistoryView();
                     break;
                 case 'players':
-                    html = Components.PlayersView();
+                    html = await Components.PlayersView();
                     break;
                 case 'teams':
-                    html = Components.TeamsView();
+                    html = await Components.TeamsView();
                     break;
                 case 'player-detail':
-                    html = Components.PlayerDetailView(this.currentParam);
+                    html = await Components.PlayerDetailView(this.currentParam);
                     break;
                 case 'match-detail':
-                    html = Components.MatchDetailView(this.currentParam);
+                    html = await Components.MatchDetailView(this.currentParam);
                     break;
                 default:
-                    html = Components.HomeView();
+                    html = await Components.HomeView();
             }
 
             this.container.innerHTML = html;
@@ -208,6 +210,91 @@ class App {
                 }
             });
         });
+    }
+
+    // Auth & UI Updates
+    updateAuthUI() {
+        const profileContainer = document.getElementById('user-profile-container');
+        if (!profileContainer) return;
+
+        if (window.Auth.isLoggedIn()) {
+            const user = window.Auth.getUser();
+            profileContainer.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-weight: bold; color: var(--accent-blue)">${user.username}</span>
+                    <img src="${user.avatar}" alt="User Profile" onclick="window.app.logout()" title="Déconnexion" style="cursor: pointer;">
+                </div>
+            `;
+        } else {
+            profileContainer.innerHTML = `
+                <button class="btn-auth" onclick="document.getElementById('login-modal').style.display='flex'">Se Connecter</button>
+            `;
+        }
+    }
+
+    setupAuthListeners() {
+        document.getElementById('btn-cancel-login').addEventListener('click', () => {
+            document.getElementById('login-modal').style.display = 'none';
+        });
+
+        document.getElementById('btn-confirm-login').addEventListener('click', () => {
+            const username = document.getElementById('login-username').value;
+            if (username.trim().length > 2) {
+                window.Auth.login(username);
+                document.getElementById('login-modal').style.display = 'none';
+                this.updateAuthUI();
+                this.render(); // re-render to update favorites state
+            }
+        });
+    }
+
+    logout() {
+        if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
+            window.Auth.logout();
+            this.updateAuthUI();
+            this.render();
+        }
+    }
+
+    toggleFavorite(e, type, id) {
+        e.stopPropagation();
+        if (!window.Auth.isLoggedIn()) {
+            alert('Veuillez vous connecter pour ajouter des favoris.');
+            document.getElementById('login-modal').style.display = 'flex';
+            return;
+        }
+        window.Auth.toggleFavorite(type, id);
+        this.render();
+    }
+
+    savePrediction(matchId, team1Logo, team2Logo) {
+        if (!window.Auth.isLoggedIn()) {
+            alert('Veuillez vous connecter pour faire un pronostic.');
+            document.getElementById('login-modal').style.display = 'flex';
+            return;
+        }
+
+        const score1Str = document.getElementById('pred-score1').value;
+        const score2Str = document.getElementById('pred-score2').value;
+
+        if (score1Str === '' || score2Str === '') {
+            alert('Veuillez entrer un score pour les deux équipes.');
+            return;
+        }
+
+        const score1 = parseInt(score1Str);
+        const score2 = parseInt(score2Str);
+
+        let winner = null;
+        if (score1 > score2) winner = team1Logo;
+        else if (score2 > score1) winner = team2Logo;
+        else {
+            alert('Il ne peut pas y avoir de match nul en RLCS.');
+            return;
+        }
+
+        window.Auth.savePrediction(matchId, winner, score1, score2);
+        this.render(); // Re-render to show the saved prediction UI
     }
 }
 
