@@ -188,16 +188,13 @@ class App {
                 
                 if (Array.isArray(statsArray) && statsArray.length > 0) {
                     statsArray.forEach(p => {
-                        const getName = (obj) => obj ? (obj.str || obj.string || obj.Name || obj) : 'Inconnu';
-                        const getInt = (obj) => obj ? (obj.int || obj.integer || obj) : 0;
-                        
-                        const name = getName(p.Name);
-                        const score = getInt(p.Score);
-                        const goals = getInt(p.Goals);
-                        const assists = getInt(p.Assists);
-                        const saves = getInt(p.Saves);
-                        const shots = getInt(p.Shots);
-                        const team = getInt(p.Team);
+                        const name = typeof p.Name === 'string' ? p.Name : (p.Name && (p.Name.str || p.Name.string) ? (p.Name.str || p.Name.string) : 'Inconnu');
+                        const score = typeof p.Score === 'number' ? p.Score : (p.Score && (p.Score.int || p.Score.integer) ? (p.Score.int || p.Score.integer) : 0);
+                        const goals = typeof p.Goals === 'number' ? p.Goals : (p.Goals && (p.Goals.int || p.Goals.integer) ? (p.Goals.int || p.Goals.integer) : 0);
+                        const assists = typeof p.Assists === 'number' ? p.Assists : (p.Assists && (p.Assists.int || p.Assists.integer) ? (p.Assists.int || p.Assists.integer) : 0);
+                        const saves = typeof p.Saves === 'number' ? p.Saves : (p.Saves && (p.Saves.int || p.Saves.integer) ? (p.Saves.int || p.Saves.integer) : 0);
+                        const shots = typeof p.Shots === 'number' ? p.Shots : (p.Shots && (p.Shots.int || p.Shots.integer) ? (p.Shots.int || p.Shots.integer) : 0);
+                        const team = typeof p.Team === 'number' ? p.Team : (p.Team && (p.Team.int || p.Team.integer) ? (p.Team.int || p.Team.integer) : 0);
                         const color = team === 0 ? 'var(--accent-blue)' : 'var(--accent-orange)';
                         
                         statsHtml += `

@@ -1,6 +1,5 @@
 import initSubtrActor, { parse_replay, get_replay_frames_data } from '@rlrml/subtr-actor';
 import subtrWasmUrl from '@rlrml/subtr-actor/rl_replay_subtr_actor_bg.wasm?url';
-import boxcars from 'boxcars.js';
 
 let subtrInitialized = false;
 
@@ -33,45 +32,36 @@ class ReplayParser {
                     
                     const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
                     
-                    // Use Boxcars.js specifically for Stats and Headers as requested by user (100% reliable format)
-                    let boxcarsData = null;
+                    // Reconstruct properties from Boxcars JSON by flattening Rust enums
                     let props = {};
-                    try {
-                        boxcarsData = boxcars.BoxcarsParser.parse(buffer);
-                        // boxcars.js parses properties into an object automatically!
-                        if (boxcarsData && boxcarsData.properties) {
-                            props = boxcarsData.properties;
-                        }
-                    } catch (err) {
-                        console.warn("Boxcars fallback failed:", err);
-                        // Fallback to our manual un-nesting
-                        if (Array.isArray(replayData.properties)) {
-                            const parseHeaderProp = (val) => {
-                                if (!val) return null;
-                                if (typeof val !== 'object') return val;
-                                if (Array.isArray(val)) return val.map(v => parseHeaderProp(v));
-                                
-                                if (val.Int !== undefined) return val.Int;
-                                if (val.int !== undefined) return val.int;
-                                if (val.Str !== undefined) return val.Str;
-                                if (val.str !== undefined) return val.str;
-                                if (val.Float !== undefined) return val.Float;
-                                if (val.float !== undefined) return val.float;
-                                if (val.Name !== undefined) return typeof val.Name === 'object' ? parseHeaderProp(val.Name) : val.Name;
-                                if (val.QWord !== undefined) return val.QWord;
-                                if (val.Bool !== undefined) return val.Bool;
-                                if (val.Byte !== undefined) return typeof val.Byte === 'object' ? val.Byte.value : val.Byte;
-                                
-                                if (val.Array !== undefined) return parseHeaderProp(val.Array);
-                                if (val.array !== undefined) return parseHeaderProp(val.array);
-                                
-                                const obj = {};
-                                for (const key in val) {
-                                    obj[key] = parseHeaderProp(val[key]);
-                                }
-                                return obj;
-                            };
+                    if (replayData.properties && typeof replayData.properties === 'object') {
+                        const parseHeaderProp = (val) => {
+                            if (!val) return null;
+                            if (typeof val !== 'object') return val;
+                            if (Array.isArray(val)) return val.map(v => parseHeaderProp(v));
+                            
+                            if (val.Int !== undefined) return val.Int;
+                            if (val.int !== undefined) return val.int;
+                            if (val.Str !== undefined) return val.Str;
+                            if (val.str !== undefined) return val.str;
+                            if (val.Float !== undefined) return val.Float;
+                            if (val.float !== undefined) return val.float;
+                            if (val.Name !== undefined) return typeof val.Name === 'object' ? parseHeaderProp(val.Name) : val.Name;
+                            if (val.QWord !== undefined) return val.QWord;
+                            if (val.Bool !== undefined) return val.Bool;
+                            if (val.Byte !== undefined) return typeof val.Byte === 'object' ? val.Byte.value : val.Byte;
+                            
+                            if (val.Array !== undefined) return parseHeaderProp(val.Array);
+                            if (val.array !== undefined) return parseHeaderProp(val.array);
+                            
+                            const obj = {};
+                            for (const key in val) {
+                                obj[key] = parseHeaderProp(val[key]);
+                            }
+                            return obj;
+                        };
 
+                        if (Array.isArray(replayData.properties)) {
                             // If it's an array of tuples [["Key", Value], ...]
                             if (replayData.properties.length > 0 && Array.isArray(replayData.properties[0])) {
                                 replayData.properties.forEach(h => {
@@ -79,6 +69,16 @@ class ReplayParser {
                                         props[h[0]] = parseHeaderProp(h[1]);
                                     }
                                 });
+                            } else {
+                                // If it's just a regular array for some reason
+                                replayData.properties.forEach((v, i) => {
+                                    props[i] = parseHeaderProp(v);
+                                });
+                            }
+                        } else {
+                            // If it's an object
+                            for (const key in replayData.properties) {
+                                props[key] = parseHeaderProp(replayData.properties[key]);
                             }
                         }
                     }
