@@ -110,7 +110,7 @@ class ReplayParser {
                         framesCount: framesData && framesData.frame_data && framesData.frame_data.metadata_frames 
                                         ? framesData.frame_data.metadata_frames.length 
                                         : 0,
-                        raw: boxcarsData || replayData,
+                        raw: replayData,
                         framesData: framesData,
                         props: props
                     });
