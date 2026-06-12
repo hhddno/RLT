@@ -62,8 +62,25 @@ class ReplayParser {
                             return obj;
                         };
 
-                        for (const key in replayData.properties) {
-                            props[key] = parseHeaderProp(replayData.properties[key]);
+                        if (Array.isArray(replayData.properties)) {
+                            // If it's an array of tuples [["Key", Value], ...]
+                            if (replayData.properties.length > 0 && Array.isArray(replayData.properties[0])) {
+                                replayData.properties.forEach(h => {
+                                    if (Array.isArray(h) && h.length === 2) {
+                                        props[h[0]] = parseHeaderProp(h[1]);
+                                    }
+                                });
+                            } else {
+                                // If it's just a regular array for some reason
+                                replayData.properties.forEach((v, i) => {
+                                    props[i] = parseHeaderProp(v);
+                                });
+                            }
+                        } else {
+                            // If it's an object
+                            for (const key in replayData.properties) {
+                                props[key] = parseHeaderProp(replayData.properties[key]);
+                            }
                         }
                     }
                     
