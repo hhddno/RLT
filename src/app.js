@@ -178,48 +178,18 @@ class App {
             if (playerStatsEl) {
                 let statsHtml = '';
                 
-                let statsArray = [];
-                // Check for subtr-actor metadata structure
-                if (data.framesData && data.framesData.meta) {
-                    const meta = data.framesData.meta;
-                    if (meta.team_zero) statsArray = statsArray.concat(meta.team_zero.map(p => ({ ...p, Team: 0 })));
-                    if (meta.team_one) statsArray = statsArray.concat(meta.team_one.map(p => ({ ...p, Team: 1 })));
-                } else {
-                    // Fallback to Boxcars structure
-                    let oldStats = props.PlayerStats;
-                    if (oldStats && oldStats.array) statsArray = oldStats.array;
-                    else if (Array.isArray(oldStats)) statsArray = oldStats;
-                }
+                let statsArray = props.PlayerStats;
+                if (statsArray && statsArray.array) statsArray = statsArray.array;
                 
-                if (statsArray.length > 0) {
+                if (Array.isArray(statsArray) && statsArray.length > 0) {
                     statsArray.forEach(p => {
-                        // For subtr-actor, stats are inside p.stats, name is p.name
-                        const getStat = (obj, key) => {
-                            if (!obj) return 0;
-                            // subtr-actor format
-                            if (obj.stats && obj.stats[key]) {
-                                const val = obj.stats[key];
-                                return val.Int !== undefined ? val.Int : (val.Float !== undefined ? val.Float : val);
-                            }
-                            // Boxcars format
-                            if (obj[key] !== undefined) {
-                                const val = obj[key];
-                                return val.int !== undefined ? val.int : (val.integer !== undefined ? val.integer : val);
-                            }
-                            return 0;
-                        };
-                        
-                        // Handle name differently for subtr-actor vs Boxcars
-                        const name = p.name ? p.name : (p.Name && (p.Name.str || p.Name.string || p.Name) ? (p.Name.str || p.Name.string || p.Name) : 'Inconnu');
-                        
-                        const score = getStat(p, 'Score');
-                        const goals = getStat(p, 'Goals');
-                        const assists = getStat(p, 'Assists');
-                        const saves = getStat(p, 'Saves');
-                        const shots = getStat(p, 'Shots');
-                        
-                        // Fallback to Boxcars team structure if p.Team is not defined
-                        const team = p.Team !== undefined ? p.Team : getStat(p, 'Team');
+                        const name = p.Name || 'Inconnu';
+                        const score = p.Score || 0;
+                        const goals = p.Goals || 0;
+                        const assists = p.Assists || 0;
+                        const saves = p.Saves || 0;
+                        const shots = p.Shots || 0;
+                        const team = p.Team || 0;
                         const color = team === 0 ? 'var(--accent-blue)' : 'var(--accent-orange)';
                         
                         statsHtml += `

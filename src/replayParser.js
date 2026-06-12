@@ -38,18 +38,37 @@ class ReplayParser {
                     // Reconstruct properties from subtr-actor's meta if available
                     if (framesData && framesData.meta && framesData.meta.all_headers) {
                         const newProps = {};
-                        framesData.meta.all_headers.forEach(h => {
-                            const key = h[0];
-                            const val = h[1];
-                            if (val) {
-                                if (val.Int !== undefined) newProps[key] = val.Int;
-                                else if (val.Str !== undefined) newProps[key] = val.Str;
-                                else if (val.Float !== undefined) newProps[key] = val.Float;
-                                else if (val.Name !== undefined) newProps[key] = val.Name;
-                                else if (val.QWord !== undefined) newProps[key] = val.QWord;
-                                else if (val.Bool !== undefined) newProps[key] = val.Bool;
-                                else newProps[key] = val;
+                        
+                        const parseHeaderProp = (val) => {
+                            if (!val) return null;
+                            if (val.Int !== undefined) return val.Int;
+                            if (val.Str !== undefined) return val.Str;
+                            if (val.Float !== undefined) return val.Float;
+                            if (val.Name !== undefined) return val.Name;
+                            if (val.QWord !== undefined) return val.QWord;
+                            if (val.Bool !== undefined) return val.Bool;
+                            if (val.Byte !== undefined) return val.Byte.value;
+                            if (val.Array !== undefined) {
+                                return val.Array.map(itemArray => {
+                                    const obj = {};
+                                    itemArray.forEach(pair => {
+                                        obj[pair[0]] = parseHeaderProp(pair[1]);
+                                    });
+                                    return obj;
+                                });
                             }
+                            if (val.Struct !== undefined && val.Struct.fields) {
+                                const obj = {};
+                                val.Struct.fields.forEach(pair => {
+                                    obj[pair[0]] = parseHeaderProp(pair[1]);
+                                });
+                                return obj;
+                            }
+                            return val;
+                        };
+
+                        framesData.meta.all_headers.forEach(h => {
+                            newProps[h[0]] = parseHeaderProp(h[1]);
                         });
                         props = newProps;
                     }

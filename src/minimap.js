@@ -75,11 +75,16 @@ export class MinimapEngine {
                         if (playerData && playerData.frames && playerData.frames[i]) {
                             const pf = playerData.frames[i];
                             if (pf !== "Empty" && pf.Data && pf.Data.rigid_body) {
+                                const q = pf.Data.rigid_body.rotation;
+                                const yaw = q ? Math.atan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z)) : 0;
+                                
                                 frame.players.push({
                                     x: pf.Data.rigid_body.location.x,
                                     y: pf.Data.rigid_body.location.y,
+                                    yaw: yaw,
                                     team: pf.Data.is_team_0 ? 0 : 1,
-                                    name: pf.Data.player_name
+                                    name: pf.Data.player_name,
+                                    boost: pf.Data.boost_amount !== undefined ? Math.round((pf.Data.boost_amount / 255) * 100) : 0
                                 });
                             }
                         }
@@ -206,22 +211,70 @@ export class MinimapEngine {
         frame.players.forEach(p => {
             const px = cx + p.x * scale;
             const py = cy + p.y * scale;
+            const isBlue = p.team === 0;
+            const color = isBlue ? '#3B82F6' : '#F97316';
             
-            // Draw dot
-            this.ctx.beginPath();
-            this.ctx.arc(px, py, 8, 0, Math.PI * 2);
-            this.ctx.fillStyle = p.team === 0 ? '#3B82F6' : '#F97316'; // Blue / Orange
-            this.ctx.fill();
-            this.ctx.strokeStyle = '#fff';
-            this.ctx.lineWidth = 2;
-            this.ctx.stroke();
+            this.ctx.save();
+            this.ctx.translate(px, py);
             
-            // Draw name
+            // Draw directional triangle
+            if (p.yaw !== undefined) {
+                // Rocket League uses Unreal Engine coordinates, where +X is forward?
+                // We might need to adjust the angle offset by -Math.PI/2 depending on how x/y maps.
+                // Assuming standard rotation:
+                this.ctx.rotate(p.yaw);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(12, 0); // Nose
+                this.ctx.lineTo(-8, 8); // Back right
+                this.ctx.lineTo(-4, 0); // Center back
+                this.ctx.lineTo(-8, -8); // Back left
+                this.ctx.closePath();
+                
+                this.ctx.fillStyle = color;
+                this.ctx.fill();
+                this.ctx.strokeStyle = '#fff';
+                this.ctx.lineWidth = 1.5;
+                this.ctx.stroke();
+            } else {
+                // Fallback to dot
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                this.ctx.fillStyle = color;
+                this.ctx.fill();
+                this.ctx.strokeStyle = '#fff';
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+            }
+            
+            this.ctx.restore();
+            
+            // Draw name and boost
             if (p.name) {
                 this.ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-                this.ctx.font = "12px sans-serif";
+                this.ctx.font = "11px sans-serif";
                 this.ctx.textAlign = "center";
-                this.ctx.fillText(p.name, px, py - 14);
+                this.ctx.fillText(p.name, px, py - 18);
+            }
+            if (p.boost !== undefined) {
+                // Boost bar background
+                const barW = 20;
+                const barH = 4;
+                this.ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+                this.ctx.fillRect(px - barW/2, py - 14, barW, barH);
+                
+                // Boost bar fill (color changes based on amount: red < 20, yellow < 50, green >= 50)
+                let boostColor = "#22c55e"; // green
+                if (p.boost < 20) boostColor = "#ef4444"; // red
+                else if (p.boost < 50) boostColor = "#eab308"; // yellow
+                
+                this.ctx.fillStyle = boostColor;
+                this.ctx.fillRect(px - barW/2, py - 14, barW * (p.boost / 100), barH);
+                
+                // Boost text
+                this.ctx.fillStyle = "#fff";
+                this.ctx.font = "bold 9px sans-serif";
+                this.ctx.fillText(p.boost, px + barW/2 + 8, py - 9);
             }
         });
         
