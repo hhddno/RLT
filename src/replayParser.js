@@ -33,22 +33,50 @@ class ReplayParser {
                     const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
                     
                     // Extract data from the Boxcars JSON structure
-                    // Boxcars puts header properties in properties object
-                    const props = replayData.properties || {};
-                    const teamBlueScore = props.Team0Score || 0;
-                    const teamOrangeScore = props.Team1Score || 0;
+                    let props = replayData.properties || {};
+                    
+                    // Reconstruct properties from subtr-actor's meta if available
+                    if (framesData && framesData.meta && framesData.meta.all_headers) {
+                        const newProps = {};
+                        framesData.meta.all_headers.forEach(h => {
+                            const key = h[0];
+                            const val = h[1];
+                            if (val) {
+                                if (val.Int !== undefined) newProps[key] = val.Int;
+                                else if (val.Str !== undefined) newProps[key] = val.Str;
+                                else if (val.Float !== undefined) newProps[key] = val.Float;
+                                else if (val.Name !== undefined) newProps[key] = val.Name;
+                                else if (val.QWord !== undefined) newProps[key] = val.QWord;
+                                else if (val.Bool !== undefined) newProps[key] = val.Bool;
+                                else newProps[key] = val;
+                            }
+                        });
+                        props = newProps;
+                    }
+                    
+                    // Safely extract scores, boxcars sometimes nests them in 'int'
+                    const getInt = (obj) => typeof obj === 'object' && obj !== null ? (obj.int || obj.Int || obj.integer || 0) : (obj || 0);
+                    
+                    const teamBlueScore = getInt(props.Team0Score);
+                    const teamOrangeScore = getInt(props.Team1Score);
+                    
+                    const matchGuid = props.Id || props.MatchType || 'Inconnu';
+                    const matchDate = props.Date || new Date().toLocaleDateString();
                     
                     resolve({
                         filename: file.name,
                         size: fileSizeMb + ' MB',
-                        matchGuid: props.MatchType || props.Id || 'Inconnu',
-                        date: props.Date || new Date().toLocaleDateString(),
+                        matchGuid: matchGuid,
+                        date: matchDate,
                         teamBlue: { name: 'Équipe Bleue', score: teamBlueScore },
                         teamOrange: { name: 'Équipe Orange', score: teamOrangeScore },
                         // Check subtr-actor framesData first, otherwise fallback to boxcars raw network_frames
-                        framesCount: framesData ? Object.keys(framesData).length : (replayData.network_frames ? replayData.network_frames.frames.length : 0),
+                        framesCount: framesData && framesData.frame_data && framesData.frame_data.metadata_frames 
+                                        ? framesData.frame_data.metadata_frames.length 
+                                        : 0,
                         raw: replayData,
-                        framesData: framesData
+                        framesData: framesData,
+                        props: props
                     });
                 } catch (error) {
                     reject(new Error("Erreur WebAssembly (subtr-actor) : " + error.message));

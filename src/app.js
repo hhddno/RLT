@@ -173,27 +173,53 @@ class App {
             if (framesEl) framesEl.textContent = data.framesCount + " frames décryptées";
 
             // Extract PlayerStats if available
-            const props = data.raw.properties || {};
+            const props = data.props || {};
             const playerStatsEl = document.getElementById('res-player-stats');
             if (playerStatsEl) {
                 let statsHtml = '';
-                // The structure is usually props.PlayerStats.array or props.PlayerStats
-                let statsArray = props.PlayerStats;
-                if (statsArray && statsArray.array) statsArray = statsArray.array;
                 
-                if (Array.isArray(statsArray) && statsArray.length > 0) {
+                let statsArray = [];
+                // Check for subtr-actor metadata structure
+                if (data.framesData && data.framesData.meta) {
+                    const meta = data.framesData.meta;
+                    if (meta.team_zero) statsArray = statsArray.concat(meta.team_zero.map(p => ({ ...p, Team: 0 })));
+                    if (meta.team_one) statsArray = statsArray.concat(meta.team_one.map(p => ({ ...p, Team: 1 })));
+                } else {
+                    // Fallback to Boxcars structure
+                    let oldStats = props.PlayerStats;
+                    if (oldStats && oldStats.array) statsArray = oldStats.array;
+                    else if (Array.isArray(oldStats)) statsArray = oldStats;
+                }
+                
+                if (statsArray.length > 0) {
                     statsArray.forEach(p => {
-                        // boxcars often nests typed values, e.g. p.Name.str or p.Name
-                        const getName = (obj) => obj ? (obj.str || obj.string || obj.Name || obj) : 'Inconnu';
-                        const getInt = (obj) => obj ? (obj.int || obj.integer || obj) : 0;
+                        // For subtr-actor, stats are inside p.stats, name is p.name
+                        const getStat = (obj, key) => {
+                            if (!obj) return 0;
+                            // subtr-actor format
+                            if (obj.stats && obj.stats[key]) {
+                                const val = obj.stats[key];
+                                return val.Int !== undefined ? val.Int : (val.Float !== undefined ? val.Float : val);
+                            }
+                            // Boxcars format
+                            if (obj[key] !== undefined) {
+                                const val = obj[key];
+                                return val.int !== undefined ? val.int : (val.integer !== undefined ? val.integer : val);
+                            }
+                            return 0;
+                        };
                         
-                        const name = getName(p.Name);
-                        const score = getInt(p.Score);
-                        const goals = getInt(p.Goals);
-                        const assists = getInt(p.Assists);
-                        const saves = getInt(p.Saves);
-                        const shots = getInt(p.Shots);
-                        const team = getInt(p.Team);
+                        // Handle name differently for subtr-actor vs Boxcars
+                        const name = p.name ? p.name : (p.Name && (p.Name.str || p.Name.string || p.Name) ? (p.Name.str || p.Name.string || p.Name) : 'Inconnu');
+                        
+                        const score = getStat(p, 'Score');
+                        const goals = getStat(p, 'Goals');
+                        const assists = getStat(p, 'Assists');
+                        const saves = getStat(p, 'Saves');
+                        const shots = getStat(p, 'Shots');
+                        
+                        // Fallback to Boxcars team structure if p.Team is not defined
+                        const team = p.Team !== undefined ? p.Team : getStat(p, 'Team');
                         const color = team === 0 ? 'var(--accent-blue)' : 'var(--accent-orange)';
                         
                         statsHtml += `
