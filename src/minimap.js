@@ -177,11 +177,37 @@ export class MinimapEngine {
         this.ctx.arc(cx, cy, 1000 * scale, 0, Math.PI * 2);
         this.ctx.stroke();
         
+        // Draw ball trail
+        if (this.currentFrame > 0) {
+            this.ctx.beginPath();
+            let startFrame = Math.max(0, this.currentFrame - 30);
+            let first = true;
+            for (let i = startFrame; i <= this.currentFrame; i++) {
+                const f = this.frames[i];
+                if (f && f.ball) {
+                    const bx = cx + f.ball.x * scale;
+                    const by = cy + f.ball.y * scale;
+                    if (first) {
+                        this.ctx.moveTo(bx, by);
+                        first = false;
+                    } else {
+                        this.ctx.lineTo(bx, by);
+                    }
+                }
+            }
+            this.ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+            this.ctx.lineWidth = 4;
+            this.ctx.lineCap = "round";
+            this.ctx.lineJoin = "round";
+            this.ctx.stroke();
+        }
+
         // Draw players
         frame.players.forEach(p => {
             const px = cx + p.x * scale;
             const py = cy + p.y * scale;
             
+            // Draw dot
             this.ctx.beginPath();
             this.ctx.arc(px, py, 8, 0, Math.PI * 2);
             this.ctx.fillStyle = p.team === 0 ? '#3B82F6' : '#F97316'; // Blue / Orange
@@ -189,6 +215,14 @@ export class MinimapEngine {
             this.ctx.strokeStyle = '#fff';
             this.ctx.lineWidth = 2;
             this.ctx.stroke();
+            
+            // Draw name
+            if (p.name) {
+                this.ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+                this.ctx.font = "12px sans-serif";
+                this.ctx.textAlign = "center";
+                this.ctx.fillText(p.name, px, py - 14);
+            }
         });
         
         // Draw ball
