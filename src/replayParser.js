@@ -9,15 +9,18 @@ class ReplayParser {
                     await initBoxcars();
                     const buffer = e.target.result;
                     const uint8Array = new Uint8Array(buffer);
+                    console.log('Replay file loaded, size:', uint8Array.length, 'bytes');
+                    if (uint8Array.length === 0) throw new Error("Fichier vide.");
                     
                     // Decode using WebAssembly (boxcars.js)
-                    const parser = new BoxcarsParser(uint8Array);
-                    parser.setCrcCheck(CrcCheck.Never); // Speed up parsing by skipping CRC
-                    parser.setNetworkParse(NetworkParse.Always); // Parse the actual frames!
+                    // Boxcars uses a consuming builder pattern, so methods return a new wrapper!
+                    let parser = new BoxcarsParser(uint8Array);
+                    parser = parser.setCrcCheck(CrcCheck.Never); // Speed up parsing by skipping CRC
+                    parser = parser.setNetworkParse(NetworkParse.Always); // Parse the actual frames!
                     
                     // The WASM parser returns a full JSON object of the replay
+                    // parse() consumes the parser, so no need to free() it afterwards
                     const replayData = parser.parse();
-                    parser.free(); // Free the WASM memory
                     
                     const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
                     
