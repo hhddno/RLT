@@ -311,7 +311,6 @@ class App {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new App();
-    if (window.lucide) window.lucide.createIcons();
-});
+// Initialize immediately since ES modules are deferred and DOM is already ready
+window.app = new App();
+if (window.lucide) window.lucide.createIcons();

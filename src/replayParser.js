@@ -1,11 +1,12 @@
-import { BoxcarsParser, CrcCheck, NetworkParse } from 'boxcars.js';
+import { BoxcarsParser, CrcCheck, NetworkParse, initBoxcars } from './boxcars/boxcars_js.js';
 
 class ReplayParser {
     static async parse(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
                 try {
+                    await initBoxcars();
                     const buffer = e.target.result;
                     const uint8Array = new Uint8Array(buffer);
                     

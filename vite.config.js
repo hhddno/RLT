@@ -6,5 +6,10 @@ export default defineConfig({
   plugins: [
     wasm(),
     nodePolyfills()
-  ]
+  ],
+  resolve: {
+    alias: {
+      'util': '/src/util-shim.js'
+    }
+  }
 });

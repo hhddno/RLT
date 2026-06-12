@@ -280,7 +280,7 @@ window.Components = {
                 <h2 style="font-family:var(--font-heading);margin-bottom:1rem;">Détail des Manches</h2>
                 ${gamesHtml}
                 <div style="margin-top:2rem;text-align:center;">
-                    <a href="https://ballchasing.com/?title=RLCS" target="_blank" class="btn-outline-orange"><i data-lucide="download" style="width:16px;height:16px;"></i> Télécharger .replay</a>
+                    <a href="${match.replayUrl || `https://ballchasing.com/?title=RLCS+${match.team1.logo}+vs+${match.team2.logo}`}" target="_blank" class="btn-outline-orange"><i data-lucide="download" style="width:16px;height:16px;"></i> Télécharger .replay</a>
                 </div>
                 <div style="margin-top:2rem;">
                     <h3 style="font-family:var(--font-heading);margin-bottom:0.75rem;text-align:center;">Rediffusion</h3>
