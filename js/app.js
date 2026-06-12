@@ -52,6 +52,8 @@ class App {
                 case 'player-detail': html = await Components.PlayerDetailView(this.currentParam); break;
                 case 'match-detail': html = await Components.MatchDetailView(this.currentParam); break;
                 case 'predictions': html = await Components.PredictionsView(); break;
+                case 'knowledge': html = Components.KnowledgeBaseView(); break;
+                case 'replay': html = Components.ReplayStudioView(); break;
                 default: html = await Components.HomeView();
             }
         } catch (e) {
@@ -64,6 +66,7 @@ class App {
 
         if (window.lucide) window.lucide.createIcons();
         if (this.currentView === 'player-detail') this.initPlayerRadarChart(this.currentParam);
+        if (this.currentView === 'replay') this.initReplayStudio();
         this.attachDynamicListeners();
 
         // Hide loading overlay on first render
@@ -120,6 +123,56 @@ class App {
                 }
             }
         });
+    }
+
+    initReplayStudio() {
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('replay-file-input');
+        if (!dropZone || !fileInput) return;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+            dropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); });
+        });
+
+        dropZone.addEventListener('dragover', () => dropZone.style.borderColor = 'var(--accent-blue)');
+        dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = 'rgba(255,255,255,0.1)');
+        dropZone.addEventListener('drop', (e) => {
+            dropZone.style.borderColor = 'rgba(255,255,255,0.1)';
+            const files = e.dataTransfer.files;
+            if (files.length) this.handleReplayFile(files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) this.handleReplayFile(e.target.files[0]);
+        });
+    }
+
+    async handleReplayFile(file) {
+        if (!file.name.endsWith('.replay')) {
+            window.showToast("Ce n'est pas un fichier .replay valide", 'error');
+            return;
+        }
+
+        document.getElementById('replay-loading').style.display = 'block';
+        document.getElementById('replay-results').style.display = 'none';
+
+        try {
+            const data = await window.ReplayParser.parse(file);
+            
+            document.getElementById('res-filename').textContent = data.filename + ' (' + data.size + ')';
+            document.getElementById('res-guid').textContent = data.matchGuid;
+            document.getElementById('res-blue-name').textContent = data.teamBlue.name;
+            document.getElementById('res-blue-score').textContent = data.teamBlue.score;
+            document.getElementById('res-orange-name').textContent = data.teamOrange.name;
+            document.getElementById('res-orange-score').textContent = data.teamOrange.score;
+
+            document.getElementById('replay-loading').style.display = 'none';
+            document.getElementById('replay-results').style.display = 'block';
+            window.showToast("Fichier décrypté avec succès !", "success");
+        } catch (e) {
+            document.getElementById('replay-loading').style.display = 'none';
+            window.showToast(e.message, 'error');
+        }
     }
 
     attachDynamicListeners() {

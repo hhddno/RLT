@@ -203,3 +203,25 @@ window.RLData.UPCOMING = [
     { id: 'wc26-gf', date: '2026-09-20', event: 'RLCS 2026 Worlds — Grand Final', status: 'Upcoming',
       team1: { name: 'TBD', score: 0, logo: '?' }, team2: { name: 'TBD', score: 0, logo: '?' }, duration: 'Bo7' }
 ];
+
+// ═══════════════════════════════════════════
+// HITBOXES & CARS
+// ═══════════════════════════════════════════
+window.RLData.HITBOXES = [
+    { id: 'h-octane', name: 'Octane', length: 118.01, width: 84.20, height: 36.16, usage: 72, cars: ['Octane', 'Fennec', 'Twinzer', 'Marauder', 'Takumi', 'Zippy', 'Scarab', 'Proteus', 'Vulcan', 'Armadillo'] },
+    { id: 'h-dominus', name: 'Dominus', length: 127.93, width: 83.28, height: 31.30, usage: 15, cars: ['Dominus', 'Batmobile (1989)', 'DeLorean', 'Aftershock', 'Masamune', 'Ripper', 'Ice Charger', 'Ecto-1'] },
+    { id: 'h-plank', name: 'Plank', length: 128.82, width: 84.67, height: 29.39, usage: 5, cars: ['Batmobile (2016)', 'Mantis', 'Paladin', 'Twin Mill III', 'Centio'] },
+    { id: 'h-breakout', name: 'Breakout', length: 131.49, width: 80.52, height: 30.30, usage: 4, cars: ['Breakout', 'Breakout Type-S', 'Animus GP', 'Samurai'] },
+    { id: 'h-hybrid', name: 'Hybrid', length: 127.02, width: 82.19, height: 34.16, usage: 3, cars: ['Endo', 'Venom', 'X-Devil', 'Jäger 619 RS', 'Skyline', 'Esper'] },
+    { id: 'h-merc', name: 'Merc', length: 120.72, width: 76.71, height: 41.66, usage: 1, cars: ['Merc', 'Battle Bus', 'Ford F-150'] }
+];
+
+// ═══════════════════════════════════════════
+// MAPS
+// ═══════════════════════════════════════════
+window.RLData.MAPS = [
+    { id: 'm-champions', name: 'Champions Field', environment: 'Standard', image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=600&auto=format&fit=crop' },
+    { id: 'm-dfh', name: 'DFH Stadium', environment: 'Standard', image: 'https://images.unsplash.com/photo-1518623489648-a173ef7824f3?q=80&w=600&auto=format&fit=crop' },
+    { id: 'm-mannfield', name: 'Mannfield (Night)', environment: 'Standard', image: 'https://images.unsplash.com/photo-1431324155629-1a6d0a6eb433?q=80&w=600&auto=format&fit=crop' },
+    { id: 'm-neotokyo', name: 'Neo Tokyo', environment: 'Standard', image: 'https://images.unsplash.com/photo-1493997181344-712f2f19d87a?q=80&w=600&auto=format&fit=crop' }
+];

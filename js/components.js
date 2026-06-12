@@ -329,5 +329,105 @@ window.Components = {
         return `
         <div class="section-header fade-in"><div><h1 class="section-title">Prédictions</h1><p class="section-subtitle">Pronostiquez les matchs à venir du RLCS</p></div></div>
         ${upcomingCards}`;
+    },
+
+    // Knowledge Base View (Hitboxes & Maps)
+    KnowledgeBaseView: () => {
+        const hitboxes = window.RLData.HITBOXES || [];
+        const maps = window.RLData.MAPS || [];
+        
+        const hitboxHtml = hitboxes.sort((a,b) => b.usage - a.usage).map((h, i) => `
+            <div class="match-item fade-in" style="flex-direction:column;align-items:flex-start;animation-delay:${i * 0.05}s">
+                <div style="display:flex;justify-content:space-between;width:100%;margin-bottom:0.5rem;">
+                    <span style="font-family:var(--font-heading);font-weight:900;font-size:1.2rem;color:var(--accent-blue);">${h.name}</span>
+                    <span class="badge" style="background:rgba(255,107,0,0.1);color:var(--accent-orange);">Utilisation Pro : ${h.usage}%</span>
+                </div>
+                <div style="display:flex;gap:1.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem;">
+                    <span>📐 Longueur: ${h.length}</span>
+                    <span>📏 Largeur: ${h.width}</span>
+                    <span>↕️ Hauteur: ${h.height}</span>
+                </div>
+                <div style="font-size:0.8rem;color:var(--text-main);">
+                    <strong>Voitures :</strong> ${h.cars.join(', ')}
+                </div>
+            </div>
+        `).join('');
+
+        const mapHtml = maps.map((m, i) => `
+            <div class="player-card fade-in" style="animation-delay:${i * 0.05}s;padding:0;overflow:hidden;min-height:160px;position:relative;">
+                <div style="position:absolute;inset:0;background:url('${m.image}') center/cover;opacity:0.4;"></div>
+                <div style="position:absolute;inset:0;background:linear-gradient(to top, var(--bg-card), transparent);"></div>
+                <div style="position:absolute;bottom:0;left:0;right:0;padding:1rem;">
+                    <h3 style="margin:0;font-family:var(--font-heading);font-size:1.1rem;text-shadow:0 2px 4px rgba(0,0,0,0.8);">${m.name}</h3>
+                    <span style="font-size:0.8rem;color:var(--text-muted);">${m.environment}</span>
+                </div>
+            </div>
+        `).join('');
+
+        return `
+        <div class="section-header fade-in"><div><h1 class="section-title">Encyclopédie</h1><p class="section-subtitle">Données techniques et hitboxes officielles</p></div></div>
+        
+        <h2 style="margin-bottom:1.25rem;font-family:var(--font-heading)" class="fade-in">Hitboxes & Statistiques</h2>
+        <div class="card fade-in" style="margin-bottom:2rem;">
+            ${hitboxHtml}
+        </div>
+        
+        <h2 style="margin-bottom:1.25rem;font-family:var(--font-heading)" class="fade-in">Arènes (Maps)</h2>
+        <div class="player-list fade-in">
+            ${mapHtml}
+        </div>`;
+    },
+
+    // Replay Studio View
+    ReplayStudioView: () => {
+        return `
+        <div class="section-header fade-in"><div><h1 class="section-title">Replay Studio</h1><p class="section-subtitle">Laboratoire d'analyse de fichiers .replay</p></div></div>
+        
+        <div class="card fade-in" style="text-align:center;padding:3rem 1rem;border: 2px dashed rgba(255,255,255,0.1);" id="drop-zone">
+            <i data-lucide="upload-cloud" style="width:48px;height:48px;color:var(--accent-blue);margin-bottom:1rem;"></i>
+            <h2 style="margin-bottom:0.5rem;font-family:var(--font-heading)">Glissez un fichier .replay ici</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">Ou cliquez pour parcourir vos fichiers locaux.</p>
+            <input type="file" id="replay-file-input" accept=".replay" style="display:none;">
+            <button class="btn-auth" onclick="document.getElementById('replay-file-input').click()">Sélectionner un fichier</button>
+        </div>
+
+        <div id="replay-loading" style="display:none;text-align:center;margin-top:2rem;">
+            <div class="loader" style="margin:0 auto 1rem;"></div>
+            <p style="color:var(--accent-blue);">Décryptage du fichier binaire...</p>
+        </div>
+
+        <div id="replay-results" style="display:none;margin-top:2rem;" class="fade-in">
+            <h2 style="margin-bottom:1rem;font-family:var(--font-heading)">Résultats de l'analyse</h2>
+            <div class="card">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;">
+                    <div>
+                        <h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Fichier</h4>
+                        <p id="res-filename" style="font-weight:bold;"></p>
+                    </div>
+                    <div>
+                        <h4 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;">Match GUID</h4>
+                        <p id="res-guid" style="font-family:monospace;font-size:0.85rem;color:var(--accent-orange);"></p>
+                    </div>
+                </div>
+                <div class="match-item" style="justify-content:center;gap:2rem;">
+                    <div style="text-align:right;">
+                        <span id="res-blue-name" style="font-weight:700;color:var(--accent-blue);font-size:1.2rem;"></span>
+                    </div>
+                    <div style="font-size:2rem;font-weight:900;font-family:var(--font-heading);">
+                        <span id="res-blue-score"></span> - <span id="res-orange-score"></span>
+                    </div>
+                    <div style="text-align:left;">
+                        <span id="res-orange-name" style="font-weight:700;color:var(--accent-orange);font-size:1.2rem;"></span>
+                    </div>
+                </div>
+                
+                <div style="margin-top:2rem;text-align:center;padding:2rem;background:rgba(255,255,255,0.02);border-radius:var(--radius-md);">
+                    <i data-lucide="monitor-play" style="width:32px;height:32px;color:var(--text-muted);margin-bottom:1rem;"></i>
+                    <h3 style="color:var(--text-muted);">Visualiseur Frame-by-Frame 2D</h3>
+                    <p style="font-size:0.85rem;color:var(--text-muted);max-width:400px;margin:0.5rem auto;">Le tracking frame-by-frame complet nécessite le moteur Boxcars (WebAssembly). Ce module de démonstration affiche les métadonnées de l'en-tête (Header).</p>
+                </div>
+            </div>
+        </div>
+        `;
     }
 };
