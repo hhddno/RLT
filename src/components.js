@@ -452,7 +452,7 @@ window.Components = {
                 <div style="margin-top:2rem;">
                     <h3 style="margin-bottom:1rem;font-family:var(--font-heading);color:var(--accent-orange);">Analyse Stratégique (Minimap 2D)</h3>
                     <div style="background:#0F172A;border-radius:var(--radius-lg);padding:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                        <div style="position:relative;width:100%;aspect-ratio:1.4/1;background:url('https://rocketleague.com/favicon.ico') center/cover;border:2px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;background-color:#1E293B;">
+                        <div style="position:relative;width:100%;aspect-ratio:1.4/1;border:2px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;background-color:#1E293B;">
                             <!-- The actual Canvas -->
                             <canvas id="replay-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
                         </div>
