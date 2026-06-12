@@ -27,8 +27,8 @@ class ReplayParser {
                     let statsTimelineStr = null;
                     try {
                         framesData = get_replay_frames_data(uint8Array);
-                        statsTimelineStr = get_stats_timeline_json(uint8Array);
-                        console.log("Stats Timeline:", statsTimelineStr.substring(0, 1000));
+                        const timelineBytes = get_stats_timeline_json(uint8Array);
+                        statsTimelineStr = new TextDecoder().decode(timelineBytes);
                     } catch (err) {
                         console.warn("Could not extract frame data:", err);
                     }
