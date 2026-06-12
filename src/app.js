@@ -188,13 +188,16 @@ class App {
                 
                 if (Array.isArray(statsArray) && statsArray.length > 0) {
                     statsArray.forEach(p => {
-                        const name = p.Name || 'Inconnu';
-                        const score = p.Score || 0;
-                        const goals = p.Goals || 0;
-                        const assists = p.Assists || 0;
-                        const saves = p.Saves || 0;
-                        const shots = p.Shots || 0;
-                        const team = p.Team || 0;
+                        const getName = (obj) => obj ? (obj.str || obj.string || obj.Name || obj) : 'Inconnu';
+                        const getInt = (obj) => obj ? (obj.int || obj.integer || obj) : 0;
+                        
+                        const name = getName(p.Name);
+                        const score = getInt(p.Score);
+                        const goals = getInt(p.Goals);
+                        const assists = getInt(p.Assists);
+                        const saves = getInt(p.Saves);
+                        const shots = getInt(p.Shots);
+                        const team = getInt(p.Team);
                         const color = team === 0 ? 'var(--accent-blue)' : 'var(--accent-orange)';
                         
                         statsHtml += `

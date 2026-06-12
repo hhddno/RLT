@@ -51,8 +51,8 @@ export class MinimapEngine {
         this.boostPads = [];
         let numFrames = 0;
         
-        if (framesData && framesData.meta && framesData.meta.boost_pads) {
-            this.boostPads = framesData.meta.boost_pads.map(pad => ({
+        if (framesData && framesData.boost_pads) {
+            this.boostPads = framesData.boost_pads.map(pad => ({
                 x: pad.location.x,
                 y: pad.location.y,
                 isBig: pad.is_big
