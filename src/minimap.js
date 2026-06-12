@@ -48,7 +48,16 @@ export class MinimapEngine {
     
     loadData(framesData, rawNetworkFrames) {
         this.frames = [];
+        this.boostPads = [];
         let numFrames = 0;
+        
+        if (framesData && framesData.meta && framesData.meta.boost_pads) {
+            this.boostPads = framesData.meta.boost_pads.map(pad => ({
+                x: pad.location.x,
+                y: pad.location.y,
+                isBig: pad.is_big
+            }));
+        }
         
         if (framesData && framesData.frame_data) {
             const fd = framesData.frame_data;
@@ -177,10 +186,29 @@ export class MinimapEngine {
         this.ctx.lineWidth = 2;
         this.ctx.strokeRect(cx - 4096 * scale, cy - 5120 * scale, 8192 * scale, 10240 * scale);
         
+        // Draw Goals
+        this.ctx.fillStyle = "rgba(59, 130, 246, 0.2)"; // Blue Goal
+        this.ctx.fillRect(cx - 892 * scale, cy - 5120 * scale - 880 * scale, 1784 * scale, 880 * scale);
+        this.ctx.fillStyle = "rgba(249, 115, 22, 0.2)"; // Orange Goal
+        this.ctx.fillRect(cx - 892 * scale, cy + 5120 * scale, 1784 * scale, 880 * scale);
+        
         // Draw Center circle
         this.ctx.beginPath();
         this.ctx.arc(cx, cy, 1000 * scale, 0, Math.PI * 2);
         this.ctx.stroke();
+        
+        // Draw Boost Pads
+        if (this.boostPads) {
+            this.boostPads.forEach(pad => {
+                this.ctx.beginPath();
+                this.ctx.arc(cx + pad.x * scale, cy + pad.y * scale, pad.isBig ? 12 : 5, 0, Math.PI * 2);
+                this.ctx.fillStyle = pad.isBig ? "rgba(234, 179, 8, 0.5)" : "rgba(234, 179, 8, 0.2)"; // Yellow
+                this.ctx.fill();
+                this.ctx.strokeStyle = "rgba(234, 179, 8, 0.8)";
+                this.ctx.lineWidth = 1;
+                this.ctx.stroke();
+            });
+        }
         
         // Draw ball trail
         if (this.currentFrame > 0) {

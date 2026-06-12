@@ -33,41 +33,38 @@ class ReplayParser {
                     const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
                     
                     // Extract data from the Boxcars JSON structure
+                    // Reconstruct properties from Boxcars JSON by flattening Rust enums
                     let props = {};
-                    if (Array.isArray(replayData.properties)) {
+                    if (replayData.properties && typeof replayData.properties === 'object') {
                         const parseHeaderProp = (val) => {
                             if (!val) return null;
+                            if (typeof val !== 'object') return val;
+                            if (Array.isArray(val)) return val.map(v => parseHeaderProp(v));
+                            
                             if (val.Int !== undefined) return val.Int;
+                            if (val.int !== undefined) return val.int;
                             if (val.Str !== undefined) return val.Str;
+                            if (val.str !== undefined) return val.str;
                             if (val.Float !== undefined) return val.Float;
-                            if (val.Name !== undefined) return val.Name;
+                            if (val.float !== undefined) return val.float;
+                            if (val.Name !== undefined) return typeof val.Name === 'object' ? parseHeaderProp(val.Name) : val.Name;
                             if (val.QWord !== undefined) return val.QWord;
                             if (val.Bool !== undefined) return val.Bool;
-                            if (val.Byte !== undefined) return val.Byte.value;
-                            if (val.Array !== undefined) {
-                                return val.Array.map(itemArray => {
-                                    const obj = {};
-                                    itemArray.forEach(pair => {
-                                        obj[pair[0]] = parseHeaderProp(pair[1]);
-                                    });
-                                    return obj;
-                                });
+                            if (val.Byte !== undefined) return typeof val.Byte === 'object' ? val.Byte.value : val.Byte;
+                            
+                            if (val.Array !== undefined) return parseHeaderProp(val.Array);
+                            if (val.array !== undefined) return parseHeaderProp(val.array);
+                            
+                            const obj = {};
+                            for (const key in val) {
+                                obj[key] = parseHeaderProp(val[key]);
                             }
-                            if (val.Struct !== undefined && val.Struct.fields) {
-                                const obj = {};
-                                val.Struct.fields.forEach(pair => {
-                                    obj[pair[0]] = parseHeaderProp(pair[1]);
-                                });
-                                return obj;
-                            }
-                            return val;
+                            return obj;
                         };
 
-                        replayData.properties.forEach(h => {
-                            if (Array.isArray(h) && h.length === 2) {
-                                props[h[0]] = parseHeaderProp(h[1]);
-                            }
-                        });
+                        for (const key in replayData.properties) {
+                            props[key] = parseHeaderProp(replayData.properties[key]);
+                        }
                     }
                     
                     // Safely extract scores, boxcars sometimes nests them in 'int'
@@ -87,8 +84,8 @@ class ReplayParser {
                         matchGuid: matchGuid,
                         date: matchDate,
                         mapName: mapName,
-                        teamBlue: { name: 'Équipe Bleue', score: teamBlueScore },
-                        teamOrange: { name: 'Équipe Orange', score: teamOrangeScore },
+                        teamBlue: { name: props.TeamName0 || props.Team0Name || 'Équipe Bleue', score: teamBlueScore },
+                        teamOrange: { name: props.TeamName1 || props.Team1Name || 'Équipe Orange', score: teamOrangeScore },
                         // Check subtr-actor framesData first, otherwise fallback to boxcars raw network_frames
                         framesCount: framesData && framesData.frame_data && framesData.frame_data.metadata_frames 
                                         ? framesData.frame_data.metadata_frames.length 
