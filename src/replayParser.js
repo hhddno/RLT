@@ -1,4 +1,4 @@
-import initSubtrActor, { parse_replay, get_replay_frames_data } from '@rlrml/subtr-actor';
+import initSubtrActor, { parse_replay, get_replay_frames_data, get_stats_timeline_json } from '@rlrml/subtr-actor';
 import subtrWasmUrl from '@rlrml/subtr-actor/rl_replay_subtr_actor_bg.wasm?url';
 
 let subtrInitialized = false;
@@ -24,8 +24,11 @@ class ReplayParser {
                     
                     // Try to extract frame-by-frame stats/timeline if possible
                     let framesData = null;
+                    let statsTimelineStr = null;
                     try {
                         framesData = get_replay_frames_data(uint8Array);
+                        statsTimelineStr = get_stats_timeline_json(uint8Array);
+                        console.log("Stats Timeline:", statsTimelineStr.substring(0, 1000));
                     } catch (err) {
                         console.warn("Could not extract frame data:", err);
                     }
@@ -149,6 +152,7 @@ class ReplayParser {
                                         : 0,
                         raw: replayData,
                         framesData: framesData,
+                        statsTimeline: statsTimelineStr ? JSON.parse(statsTimelineStr) : null,
                         props: props
                     });
                 } catch (error) {

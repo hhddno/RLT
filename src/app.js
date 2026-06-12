@@ -217,7 +217,12 @@ class App {
             // Raw JSON Viewer
             const rawJsonEl = document.getElementById('res-raw-json');
             if (rawJsonEl) {
-                rawJsonEl.textContent = JSON.stringify(props, null, 2);
+                const debugData = {
+                    ...props,
+                    _subtrMeta: data.framesData ? data.framesData.meta : null,
+                    _statsTimeline: data.statsTimeline
+                };
+                rawJsonEl.textContent = JSON.stringify(debugData, null, 2);
             }
 
             document.getElementById('replay-loading').style.display = 'none';
