@@ -105,9 +105,36 @@ class ReplayParser {
                     const mapName = getStr(props.MapName);
                     const replayName = getStr(props.ReplayName) !== "Inconnu" ? getStr(props.ReplayName) : file.name;
                     
+                    // Extract player stats natively from subtr-actor's ReplayMeta
+                    const players = [];
+                    if (framesData && framesData.meta) {
+                        const pushPlayer = (p, teamId) => {
+                            players.push({
+                                Name: p.name,
+                                Score: p.stats ? p.stats.score : 0,
+                                Goals: p.stats ? p.stats.goals : 0,
+                                Assists: p.stats ? p.stats.assists : 0,
+                                Saves: p.stats ? p.stats.saves : 0,
+                                Shots: p.stats ? p.stats.shots : 0,
+                                Team: teamId
+                            });
+                        };
+                        if (framesData.meta.team_zero) {
+                            framesData.meta.team_zero.forEach(p => pushPlayer(p, 0));
+                        }
+                        if (framesData.meta.team_one) {
+                            framesData.meta.team_one.forEach(p => pushPlayer(p, 1));
+                        }
+                    }
+                    
+                    // Assign extracted stats back into props so app.js can find them
+                    if (players.length > 0) {
+                        props.PlayerStats = players;
+                    }
+
                     const teamBlueName = getStr(props.TeamName0) !== "Inconnu" ? getStr(props.TeamName0) : (getStr(props.Team0Name) !== "Inconnu" ? getStr(props.Team0Name) : 'Équipe Bleue');
                     const teamOrangeName = getStr(props.TeamName1) !== "Inconnu" ? getStr(props.TeamName1) : (getStr(props.Team1Name) !== "Inconnu" ? getStr(props.Team1Name) : 'Équipe Orange');
-                    
+
                     resolve({
                         filename: replayName,
                         size: fileSizeMb + ' MB',
