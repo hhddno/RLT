@@ -24,11 +24,8 @@ class ReplayParser {
                     
                     // Try to extract frame-by-frame stats/timeline if possible
                     let framesData = null;
-                    let statsTimelineStr = null;
                     try {
                         framesData = get_replay_frames_data(uint8Array);
-                        const timelineBytes = get_stats_timeline_json(uint8Array);
-                        statsTimelineStr = new TextDecoder().decode(timelineBytes);
                     } catch (err) {
                         console.warn("Could not extract frame data:", err);
                     }
@@ -152,7 +149,6 @@ class ReplayParser {
                                         : 0,
                         raw: replayData,
                         framesData: framesData,
-                        statsTimeline: statsTimelineStr ? JSON.parse(statsTimelineStr) : null,
                         props: props
                     });
                 } catch (error) {

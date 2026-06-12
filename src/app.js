@@ -219,8 +219,7 @@ class App {
             if (rawJsonEl) {
                 const debugData = {
                     ...props,
-                    _subtrMeta: data.framesData ? data.framesData.meta : null,
-                    _statsTimeline: data.statsTimeline
+                    _subtrMeta: data.framesData ? data.framesData.meta : null
                 };
                 rawJsonEl.textContent = JSON.stringify(debugData, null, 2);
             }
