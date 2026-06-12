@@ -16,7 +16,7 @@ class ReplayParser {
                     // Boxcars uses a consuming builder pattern, so methods return a new wrapper!
                     let parser = new BoxcarsParser(uint8Array);
                     parser = parser.setCrcCheck(CrcCheck.Never); // Speed up parsing by skipping CRC
-                    parser = parser.setNetworkParse(NetworkParse.Always); // Parse the actual frames!
+                    parser = parser.setNetworkParse(NetworkParse.IgnoreOnError); // Prevent crash on new RL updates
                     
                     // The WASM parser returns a full JSON object of the replay
                     // parse() consumes the parser, so no need to free() it afterwards
