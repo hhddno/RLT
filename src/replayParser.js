@@ -38,7 +38,17 @@ class ReplayParser {
                         const parseHeaderProp = (val) => {
                             if (!val) return null;
                             if (typeof val !== 'object') return val;
-                            if (Array.isArray(val)) return val.map(v => parseHeaderProp(v));
+                            if (Array.isArray(val)) {
+                                // If it's an array of tuples [["Key", Value], ...], convert to Object
+                                if (val.length > 0 && Array.isArray(val[0]) && val[0].length === 2 && typeof val[0][0] === 'string') {
+                                    const obj = {};
+                                    val.forEach(pair => {
+                                        obj[pair[0]] = parseHeaderProp(pair[1]);
+                                    });
+                                    return obj;
+                                }
+                                return val.map(v => parseHeaderProp(v));
+                            }
                             
                             if (val.Int !== undefined) return val.Int;
                             if (val.int !== undefined) return val.int;
