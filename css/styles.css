@@ -1,0 +1,554 @@
+:root {
+    /* Color Palette - Rocket League Esports Theme */
+    --bg-main: #0B0E14; /* Deep space blue */
+    --bg-secondary: #151A22;
+    --bg-glass: rgba(21, 26, 34, 0.6);
+    --border-color: rgba(255, 255, 255, 0.08);
+    
+    --accent-blue: #00E5FF;
+    --accent-orange: #FF6B00;
+    --accent-blue-glow: rgba(0, 229, 255, 0.2);
+    --accent-orange-glow: rgba(255, 107, 0, 0.2);
+    
+    --text-main: #FFFFFF;
+    --text-muted: #8E9BB0;
+    
+    --success: #00E676;
+    --danger: #FF1744;
+    
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    
+    /* Effects */
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-glow: 0 0 20px rgba(0, 229, 255, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Typography Utilities */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
+/* Layout */
+#app {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1rem;
+    transition: width var(--transition-smooth);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem 2rem 1rem;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: var(--accent-blue);
+    text-transform: uppercase;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--accent-orange);
+    filter: drop-shadow(0 0 8px var(--accent-orange-glow));
+    animation: float 3s ease-in-out infinite;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+}
+
+.nav-item i {
+    width: 20px;
+    height: 20px;
+    transition: stroke var(--transition-fast);
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    transform: translateX(5px);
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.1) 0%, transparent 100%);
+    color: var(--accent-blue);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 0 12px 12px 0;
+}
+
+.nav-item.active i {
+    stroke: var(--accent-blue);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Topbar */
+.topbar {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 10;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0.8rem 1.2rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    width: 400px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-bar:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 15px var(--accent-blue-glow);
+}
+
+.search-bar i {
+    color: var(--text-muted);
+    width: 18px;
+    height: 18px;
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    outline: none;
+    width: 100%;
+    font-family: var(--font-body);
+}
+
+.search-bar input::placeholder {
+    color: var(--text-muted);
+}
+
+.user-profile img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-blue);
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+
+.user-profile img:hover {
+    transform: scale(1.1);
+}
+
+/* View Container */
+.view-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-blue) var(--bg-main);
+}
+
+.view-container::-webkit-scrollbar {
+    width: 8px;
+}
+.view-container::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+.view-container::-webkit-scrollbar-thumb {
+    background-color: var(--accent-blue);
+    border-radius: 10px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Views Specific Styles */
+
+/* Header Sections */
+.section-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    background: linear-gradient(90deg, #FFFFFF, var(--text-muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.section-subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+}
+
+.card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Card Glow Effect */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.col-span-8 { grid-column: span 8; }
+.col-span-4 { grid-column: span 4; }
+.col-span-12 { grid-column: span 12; }
+
+/* Match History Card */
+.match-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.match-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+    transform: scale(1.01);
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 30%;
+}
+
+.team.right {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.team-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    font-weight: bold;
+    font-family: var(--font-heading);
+}
+
+.team-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.score-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.score {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--text-main);
+}
+
+.score.blue-win { color: var(--accent-blue); text-shadow: 0 0 10px var(--accent-blue-glow); }
+.score.orange-win { color: var(--accent-orange); text-shadow: 0 0 10px var(--accent-orange-glow); }
+
+.match-event {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Player Card (Dashboard/Overview) */
+.player-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.player-card {
+    background: linear-gradient(145deg, var(--bg-secondary), rgba(0,0,0,0.4));
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform var(--transition-fast);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent-blue);
+    box-shadow: 0 15px 35px rgba(0, 229, 255, 0.1);
+}
+
+.player-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid var(--accent-blue);
+    padding: 2px;
+    background: var(--bg-main);
+}
+
+.player-name {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+}
+
+.player-team {
+    color: var(--accent-orange);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.player-stats-mini {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* Detail View */
+.detail-header {
+    background: linear-gradient(135deg, var(--bg-secondary), rgba(0, 229, 255, 0.05));
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.detail-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid var(--accent-blue);
+    box-shadow: 0 0 20px var(--accent-blue-glow);
+}
+
+.detail-info h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.detail-info p {
+    color: var(--accent-orange);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Stat Grid Detailed */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: all var(--transition-fast);
+}
+
+.stat-box:hover {
+    border-color: var(--accent-blue);
+    background: linear-gradient(180deg, var(--bg-secondary), rgba(0, 229, 255, 0.05));
+    transform: scale(1.05);
+}
+
+.stat-box i {
+    width: 24px;
+    height: 24px;
+    color: var(--accent-orange);
+    margin-bottom: 0.5rem;
+}
+
+/* Back Button */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem 0;
+    transition: color var(--transition-fast);
+}
+
+.btn-back:hover {
+    color: var(--accent-blue);
+}
+
+.btn-back i {
+    width: 18px;
+    height: 18px;
+}
+
+/* DPM Specific styling (Damage Per Minute -> Demo Per Minute? Or Score per minute) */
+/* In RL context: DPM could mean Demos Per Minute, or Score Per Minute. Let's show Demos Per Minute for the LOL vibe! */
+.dpm-highlight {
+    color: var(--danger);
+    text-shadow: 0 0 10px rgba(255, 23, 68, 0.4);
+}
