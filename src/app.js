@@ -169,6 +169,53 @@ class App {
             const framesEl = document.getElementById('res-frames');
             if (framesEl) framesEl.textContent = data.framesCount + " frames décryptées";
 
+            // Extract PlayerStats if available
+            const props = data.raw.properties || {};
+            const playerStatsEl = document.getElementById('res-player-stats');
+            if (playerStatsEl) {
+                let statsHtml = '';
+                // The structure is usually props.PlayerStats.array or props.PlayerStats
+                let statsArray = props.PlayerStats;
+                if (statsArray && statsArray.array) statsArray = statsArray.array;
+                
+                if (Array.isArray(statsArray) && statsArray.length > 0) {
+                    statsArray.forEach(p => {
+                        // boxcars often nests typed values, e.g. p.Name.str or p.Name
+                        const getName = (obj) => obj ? (obj.str || obj.string || obj.Name || obj) : 'Inconnu';
+                        const getInt = (obj) => obj ? (obj.int || obj.integer || obj) : 0;
+                        
+                        const name = getName(p.Name);
+                        const score = getInt(p.Score);
+                        const goals = getInt(p.Goals);
+                        const assists = getInt(p.Assists);
+                        const saves = getInt(p.Saves);
+                        const shots = getInt(p.Shots);
+                        const team = getInt(p.Team);
+                        const color = team === 0 ? 'var(--accent-blue)' : 'var(--accent-orange)';
+                        
+                        statsHtml += `
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                <td style="padding:0.75rem;font-weight:bold;color:${color};">${name}</td>
+                                <td style="padding:0.75rem;">${score}</td>
+                                <td style="padding:0.75rem;">${goals}</td>
+                                <td style="padding:0.75rem;">${assists}</td>
+                                <td style="padding:0.75rem;">${saves}</td>
+                                <td style="padding:0.75rem;">${shots}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    statsHtml = '<tr><td colspan="6" style="padding:1rem;text-align:center;color:var(--text-muted);">Aucune statistique de joueur trouvée dans ce fichier.</td></tr>';
+                }
+                playerStatsEl.innerHTML = statsHtml;
+            }
+
+            // Raw JSON Viewer
+            const rawJsonEl = document.getElementById('res-raw-json');
+            if (rawJsonEl) {
+                rawJsonEl.textContent = JSON.stringify(props, null, 2);
+            }
+
             document.getElementById('replay-loading').style.display = 'none';
             document.getElementById('replay-results').style.display = 'block';
             window.showToast("Fichier décrypté avec succès !", "success");

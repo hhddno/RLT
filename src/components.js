@@ -445,8 +445,40 @@ window.Components = {
                     <i data-lucide="cpu" style="width:32px;height:32px;color:var(--accent-blue);margin-bottom:1rem;"></i>
                     <h3 style="color:var(--accent-blue);">Propulsé par WebAssembly (boxcars)</h3>
                     <p style="font-size:1.1rem;color:var(--text-main);font-weight:700;margin-top:0.5rem;" id="res-frames"></p>
-                    <p style="font-size:0.85rem;color:var(--text-muted);max-width:400px;margin:0.5rem auto;">Le moteur WebAssembly a extrait avec succès l'intégralité du Network Data (frames) en local.</p>
+                    <p style="font-size:0.85rem;color:var(--text-muted);max-width:400px;margin:0.5rem auto;">Si 0 frames sont décryptées, c'est que le fichier provient d'une mise à jour trop récente. Les statistiques globales du match sont toutefois extraites ci-dessous !</p>
                 </div>
+                
+                <!-- Detailed Stats Section -->
+                <div style="margin-top:2rem;">
+                    <h3 style="margin-bottom:1rem;font-family:var(--font-heading);color:var(--accent-blue);">Statistiques des Joueurs</h3>
+                    <div style="overflow-x:auto;margin-bottom:2rem;background:rgba(0,0,0,0.2);border-radius:var(--radius-md);padding:1rem;">
+                        <table style="width:100%;border-collapse:collapse;text-align:left;">
+                            <thead>
+                                <tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-muted);font-size:0.85rem;">
+                                    <th style="padding:0.75rem;">Joueur</th>
+                                    <th style="padding:0.75rem;">Score</th>
+                                    <th style="padding:0.75rem;">Buts</th>
+                                    <th style="padding:0.75rem;">Passes</th>
+                                    <th style="padding:0.75rem;">Arrêts</th>
+                                    <th style="padding:0.75rem;">Tirs</th>
+                                </tr>
+                            </thead>
+                            <tbody id="res-player-stats">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Raw JSON Explorer -->
+                <div style="margin-top:2rem;">
+                    <h3 style="margin-bottom:1rem;font-family:var(--font-heading);">Explorateur de Données Brutes</h3>
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">Explorez l'intégralité du dictionnaire de propriétés extrait du fichier .replay :</p>
+                    <div style="background:#0F172A;border-radius:8px;padding:1rem;max-height:400px;overflow-y:auto;">
+                        <pre id="res-raw-json" style="font-family:monospace;font-size:0.8rem;color:#A5B4FC;white-space:pre-wrap;word-wrap:break-word;"></pre>
+                    </div>
+                </div>
+
             </div>
         </div>
         `;
