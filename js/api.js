@@ -1,28 +1,21 @@
-// Data fetching layer (Simulating REST API calls)
+// Data fetching layer — Instant local data (no broken proxies)
+// The API layer is ready to swap in real endpoints when available.
 
 class ApiService {
     async getPlayers() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(window.RLData.PLAYERS || []);
-            }, 300); // simulate network latency
-        });
+        return window.RLData.PLAYERS || [];
     }
 
     async getMatches() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(window.RLData.MATCHES || []);
-            }, 300);
-        });
+        return window.RLData.MATCHES || [];
     }
 
     async getTeams() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(window.RLData.TEAMS || []);
-            }, 300);
-        });
+        return window.RLData.TEAMS || [];
+    }
+
+    async getUpcomingMatches() {
+        return window.RLData.UPCOMING || [];
     }
 }
 

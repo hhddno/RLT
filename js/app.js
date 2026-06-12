@@ -1,101 +1,74 @@
-// Use window.Components
 const Components = window.Components;
 
 class App {
     constructor() {
         this.currentView = 'home';
+        this.currentParam = null;
         this.container = document.getElementById('view-container');
         this.navItems = document.querySelectorAll('.nav-item');
-        
         this.init();
     }
 
     init() {
-        // Setup global navigate function for inline event handlers
         window.navigate = (view, param = null) => this.navigate(view, param);
-        
-        // Setup navigation listeners
+
         this.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const view = item.getAttribute('data-view');
-                if (view) {
-                    this.navigate(view);
-                }
+                if (view) this.navigate(view);
             });
         });
 
         this.attachSearchListener();
         this.setupAuthListeners();
         this.updateAuthUI();
-
-        // Initial render
         this.render();
     }
 
     navigate(view, param = null) {
         this.currentView = view;
         this.currentParam = param;
-        
-        // Update active state in sidebar
         this.navItems.forEach(item => {
-            if (item.getAttribute('data-view') === view) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
+            item.classList.toggle('active', item.getAttribute('data-view') === view);
         });
-
         this.render();
     }
 
-    render() {
-        // Fade out slightly
-        this.container.style.opacity = '0.5';
-        
-        setTimeout(async () => {
-            let html = '';
-            
-            switch(this.currentView) {
-                case 'home':
-                    html = await Components.HomeView();
-                    break;
-                case 'history':
-                    html = await Components.HistoryView();
-                    break;
-                case 'players':
-                    html = await Components.PlayersView();
-                    break;
-                case 'teams':
-                    html = await Components.TeamsView();
-                    break;
-                case 'player-detail':
-                    html = await Components.PlayerDetailView(this.currentParam);
-                    break;
-                case 'match-detail':
-                    html = await Components.MatchDetailView(this.currentParam);
-                    break;
-                default:
-                    html = await Components.HomeView();
-            }
+    async render() {
+        this.container.style.opacity = '0.3';
+        this.container.style.transition = 'opacity 0.15s';
 
-            this.container.innerHTML = html;
-            this.container.style.opacity = '1';
-            
-            // Re-initialize icons for newly injected HTML
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
+        // Small delay for visual smoothness
+        await new Promise(r => setTimeout(r, 100));
 
-            // Init Chart if canvas is present
-            if (this.currentView === 'player-detail') {
-                this.initPlayerRadarChart(this.currentParam);
+        let html = '';
+        try {
+            switch (this.currentView) {
+                case 'home': html = await Components.HomeView(); break;
+                case 'history': html = await Components.HistoryView(); break;
+                case 'players': html = await Components.PlayersView(); break;
+                case 'teams': html = await Components.TeamsView(); break;
+                case 'player-detail': html = await Components.PlayerDetailView(this.currentParam); break;
+                case 'match-detail': html = await Components.MatchDetailView(this.currentParam); break;
+                case 'predictions': html = await Components.PredictionsView(); break;
+                default: html = await Components.HomeView();
             }
+        } catch (e) {
+            console.error('Render error:', e);
+            html = `<div class="card"><h2>Erreur de chargement</h2><p style="color:var(--text-muted);">${e.message}</p></div>`;
+        }
 
-            // Attach event listeners for dynamic elements
-            this.attachDynamicListeners();
-            
-        }, 150); // slight delay for smooth transition effect
+        this.container.innerHTML = html;
+        this.container.style.opacity = '1';
+
+        if (window.lucide) window.lucide.createIcons();
+        if (this.currentView === 'player-detail') this.initPlayerRadarChart(this.currentParam);
+        this.attachDynamicListeners();
+
+        // Hide loading overlay on first render
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.add('hidden');
     }
 
     initPlayerRadarChart(playerId) {
@@ -103,15 +76,13 @@ class App {
         const canvas = document.getElementById('playerRadarChart');
         if (!player || !canvas) return;
 
-        // Normalize values to 0-100 for better radar visualization
-        // Max values based on typical pro performance
         const data = [
-            (player.stats.dpm / 3.0) * 100, // Max 3.0 DPM
-            (player.stats.goalsPerGame / 1.5) * 100, // Max 1.5
-            (player.stats.assistsPerGame / 1.5) * 100, // Max 1.5
-            (player.stats.savesPerGame / 2.5) * 100, // Max 2.5
-            (player.stats.shotPercentage / 40.0) * 100 // Max 40%
-        ].map(v => Math.min(v, 100)); // Cap at 100
+            (player.stats.dpm / 3.0) * 100,
+            (player.stats.goalsPerGame / 1.5) * 100,
+            (player.stats.assistsPerGame / 1.5) * 100,
+            (player.stats.savesPerGame / 2.5) * 100,
+            (player.stats.shotPercentage / 40.0) * 100
+        ].map(v => Math.min(v, 100));
 
         new Chart(canvas, {
             type: 'radar',
@@ -120,190 +91,170 @@ class App {
                 datasets: [{
                     label: player.name,
                     data: data,
-                    backgroundColor: 'rgba(0, 229, 255, 0.2)',
+                    backgroundColor: 'rgba(0,229,255,0.15)',
                     borderColor: '#00E5FF',
                     pointBackgroundColor: '#FF6B00',
                     pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#FF6B00',
                     borderWidth: 2
                 }, {
                     label: 'Moyenne Pro',
                     data: [50, 50, 50, 50, 50],
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    borderColor: 'rgba(255, 255, 255, 0.2)',
-                    borderWidth: 1,
-                    borderDash: [5, 5]
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                    borderColor: 'rgba(255,255,255,0.15)',
+                    borderWidth: 1, borderDash: [5, 5]
                 }]
             },
             options: {
+                responsive: true,
                 scales: {
                     r: {
-                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: {
-                            color: '#8E9BB0',
-                            font: { family: 'Outfit', size: 14 }
-                        },
+                        angleLines: { color: 'rgba(255,255,255,0.08)' },
+                        grid: { color: 'rgba(255,255,255,0.08)' },
+                        pointLabels: { color: '#6B7A90', font: { family: 'Outfit', size: 13 } },
                         ticks: { display: false, max: 100, min: 0 }
                     }
                 },
                 plugins: {
-                    legend: {
-                        labels: { color: '#FFF', font: { family: 'Inter' } }
-                    }
+                    legend: { labels: { color: '#F0F2F5', font: { family: 'Inter' } } }
                 }
             }
         });
     }
 
     attachDynamicListeners() {
-        // Player card clicks -> navigate to player detail
-        const playerCards = document.querySelectorAll('.player-card');
-        playerCards.forEach(card => {
+        document.querySelectorAll('.player-card').forEach(card => {
             card.addEventListener('click', () => {
                 const id = card.getAttribute('data-id');
-                this.navigate('player-detail', id);
+                if (id) this.navigate('player-detail', id);
             });
         });
-
-        // Match card clicks -> navigate to match detail
-        // Ensure we only attach to match cards in history/home, not within the match detail itself if there are similar classes
-        const matchCards = document.querySelectorAll('.match-item');
-        matchCards.forEach(card => {
+        document.querySelectorAll('.match-item[data-id]').forEach(card => {
             card.addEventListener('click', () => {
                 const id = card.getAttribute('data-id');
-                // Some match-items (like in team standings or game details) might not have data-id for match
-                if (id) {
-                    this.navigate('match-detail', id);
-                }
+                if (id) this.navigate('match-detail', id);
             });
         });
     }
 
     attachSearchListener() {
-        const searchInput = document.querySelector('.search-bar input');
+        const searchInput = document.getElementById('global-search');
         if (!searchInput) return;
-        
         searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            
-            // Global search: filter player cards and match items if they exist in the current DOM
-            const playerCards = document.querySelectorAll('.player-card');
-            playerCards.forEach(card => {
-                const name = card.querySelector('.player-name')?.textContent.toLowerCase() || '';
-                const team = card.querySelector('.player-team')?.textContent.toLowerCase() || '';
-                if (name.includes(query) || team.includes(query)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+            const q = e.target.value.toLowerCase();
+            document.querySelectorAll('.player-card').forEach(c => {
+                const text = c.textContent.toLowerCase();
+                c.style.display = text.includes(q) ? 'flex' : 'none';
             });
-
-            const matchItems = document.querySelectorAll('.match-item');
-            matchItems.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                if (text.includes(query)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
+            document.querySelectorAll('.match-item').forEach(c => {
+                const text = c.textContent.toLowerCase();
+                c.style.display = text.includes(q) ? 'flex' : 'none';
             });
         });
     }
 
-    // Auth & UI Updates
     updateAuthUI() {
-        const profileContainer = document.getElementById('user-profile-container');
-        if (!profileContainer) return;
-
-        if (window.Auth.isLoggedIn()) {
+        const container = document.getElementById('user-profile-container');
+        if (!container) return;
+        if (window.Auth && window.Auth.isLoggedIn()) {
             const user = window.Auth.getUser();
-            profileContainer.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span style="font-weight: bold; color: var(--accent-blue)">${user.username}</span>
-                    <img src="${user.avatar}" alt="User Profile" onclick="window.app.logout()" title="Déconnexion" style="cursor: pointer;">
-                </div>
+            container.innerHTML = `
+                <span style="font-weight:600;color:var(--accent-blue);font-size:0.9rem;">${user.username}</span>
+                <img src="${user.avatar}" alt="Profile" onclick="window.app.logout()" title="Cliquer pour se déconnecter">
             `;
         } else {
-            profileContainer.innerHTML = `
-                <button class="btn-auth" onclick="document.getElementById('login-modal').style.display='flex'">Se Connecter</button>
-            `;
+            container.innerHTML = `<button class="btn-auth" onclick="document.getElementById('login-modal').style.display='flex'">Se Connecter</button>`;
         }
     }
 
     setupAuthListeners() {
-        document.getElementById('btn-cancel-login').addEventListener('click', () => {
+        const cancelBtn = document.getElementById('btn-cancel-login');
+        const confirmBtn = document.getElementById('btn-confirm-login');
+        const usernameInput = document.getElementById('login-username');
+
+        if (cancelBtn) cancelBtn.addEventListener('click', () => {
             document.getElementById('login-modal').style.display = 'none';
         });
 
-        document.getElementById('btn-confirm-login').addEventListener('click', () => {
-            const username = document.getElementById('login-username').value;
-            if (username.trim().length > 2) {
-                window.Auth.login(username);
+        if (confirmBtn) confirmBtn.addEventListener('click', async () => {
+            const username = usernameInput.value.trim();
+            if (username.length < 3) { window.showToast('Le pseudo doit faire au moins 3 caractères.', 'error'); return; }
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Connexion...';
+            try {
+                await window.Auth.login(username);
                 document.getElementById('login-modal').style.display = 'none';
                 this.updateAuthUI();
-                this.render(); // re-render to update favorites state
+                this.render();
+                window.showToast(`Bienvenue, ${username} !`, 'success');
+            } catch (e) {
+                window.showToast('Erreur de connexion : ' + e.message, 'error');
             }
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Se Connecter';
+        });
+
+        // Enter key support
+        if (usernameInput) usernameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') confirmBtn.click();
         });
     }
 
-    logout() {
-        if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
-            window.Auth.logout();
+    async logout() {
+        if (confirm('Se déconnecter ?')) {
+            await window.Auth.logout();
             this.updateAuthUI();
             this.render();
+            window.showToast('Déconnecté.', 'info');
         }
     }
 
-    toggleFavorite(e, type, id) {
+    async toggleFavorite(e, type, id) {
         e.stopPropagation();
-        if (!window.Auth.isLoggedIn()) {
-            alert('Veuillez vous connecter pour ajouter des favoris.');
+        if (!window.Auth || !window.Auth.isLoggedIn()) {
+            window.showToast('Connectez-vous pour ajouter des favoris.', 'info');
             document.getElementById('login-modal').style.display = 'flex';
             return;
         }
-        window.Auth.toggleFavorite(type, id);
+        await window.Auth.toggleFavorite(type, id);
+        const wasFav = window.Auth.isFavorite(type, id);
+        window.showToast(wasFav ? 'Ajouté aux favoris ❤️' : 'Retiré des favoris', 'success');
         this.render();
     }
 
-    savePrediction(matchId, team1Logo, team2Logo) {
-        if (!window.Auth.isLoggedIn()) {
-            alert('Veuillez vous connecter pour faire un pronostic.');
+    async savePrediction(matchId, team1Logo, team2Logo) {
+        if (!window.Auth || !window.Auth.isLoggedIn()) {
+            window.showToast('Connectez-vous pour pronostiquer.', 'info');
             document.getElementById('login-modal').style.display = 'flex';
             return;
         }
+        const s1 = parseInt(document.getElementById('pred-score1')?.value);
+        const s2 = parseInt(document.getElementById('pred-score2')?.value);
+        if (isNaN(s1) || isNaN(s2)) { window.showToast('Entrez un score valide.', 'error'); return; }
+        if (s1 === s2) { window.showToast('Pas de match nul en RLCS !', 'error'); return; }
+        const winner = s1 > s2 ? team1Logo : team2Logo;
+        await window.Auth.savePrediction(matchId, winner, s1, s2);
+        window.showToast('Pronostic enregistré ! 🎯', 'success');
+        this.render();
+    }
 
-        const score1Str = document.getElementById('pred-score1').value;
-        const score2Str = document.getElementById('pred-score2').value;
-
-        if (score1Str === '' || score2Str === '') {
-            alert('Veuillez entrer un score pour les deux équipes.');
+    async savePredictionFromList(matchId, team1Logo, team2Logo) {
+        if (!window.Auth || !window.Auth.isLoggedIn()) {
+            window.showToast('Connectez-vous pour pronostiquer.', 'info');
+            document.getElementById('login-modal').style.display = 'flex';
             return;
         }
-
-        const score1 = parseInt(score1Str);
-        const score2 = parseInt(score2Str);
-
-        let winner = null;
-        if (score1 > score2) winner = team1Logo;
-        else if (score2 > score1) winner = team2Logo;
-        else {
-            alert('Il ne peut pas y avoir de match nul en RLCS.');
-            return;
-        }
-
-        window.Auth.savePrediction(matchId, winner, score1, score2);
-        this.render(); // Re-render to show the saved prediction UI
+        const s1 = parseInt(document.getElementById(`pred-${matchId}-1`)?.value);
+        const s2 = parseInt(document.getElementById(`pred-${matchId}-2`)?.value);
+        if (isNaN(s1) || isNaN(s2)) { window.showToast('Entrez un score valide.', 'error'); return; }
+        if (s1 === s2) { window.showToast('Pas de match nul en RLCS !', 'error'); return; }
+        const winner = s1 > s2 ? team1Logo : team2Logo;
+        await window.Auth.savePrediction(matchId, winner, s1, s2);
+        window.showToast('Pronostic enregistré ! 🎯', 'success');
+        this.render();
     }
 }
 
-// Initialize App when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
-    
-    // Initial icons rendering
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
+    if (window.lucide) window.lucide.createIcons();
 });
