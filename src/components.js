@@ -442,9 +442,10 @@ window.Components = {
                 </div>
                 
                 <div style="margin-top:2rem;text-align:center;padding:2rem;background:rgba(255,255,255,0.02);border-radius:var(--radius-md);">
-                    <i data-lucide="monitor-play" style="width:32px;height:32px;color:var(--text-muted);margin-bottom:1rem;"></i>
-                    <h3 style="color:var(--text-muted);">Visualiseur Frame-by-Frame 2D</h3>
-                    <p style="font-size:0.85rem;color:var(--text-muted);max-width:400px;margin:0.5rem auto;">Le tracking frame-by-frame complet nécessite le moteur Boxcars (WebAssembly). Ce module de démonstration affiche les métadonnées de l'en-tête (Header).</p>
+                    <i data-lucide="cpu" style="width:32px;height:32px;color:var(--accent-blue);margin-bottom:1rem;"></i>
+                    <h3 style="color:var(--accent-blue);">Propulsé par WebAssembly (boxcars)</h3>
+                    <p style="font-size:1.1rem;color:var(--text-main);font-weight:700;margin-top:0.5rem;" id="res-frames"></p>
+                    <p style="font-size:0.85rem;color:var(--text-muted);max-width:400px;margin:0.5rem auto;">Le moteur WebAssembly a extrait avec succès l'intégralité du Network Data (frames) en local.</p>
                 </div>
             </div>
         </div>

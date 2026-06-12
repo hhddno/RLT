@@ -1,0 +1,34 @@
+{
+  "name": "rlt",
+  "version": "1.0.0",
+  "description": "RL Tracker",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hhddno/RLT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/hhddno/RLT/issues"
+  },
+  "homepage": "https://github.com/hhddno/RLT#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "rollup": "^4.61.1",
+    "vite": "^8.0.16",
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.6.0"
+  },
+  "dependencies": {
+    "boxcars.js": "^1.0.6"
+  }
+}

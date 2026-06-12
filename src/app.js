@@ -165,6 +165,9 @@ class App {
             document.getElementById('res-blue-score').textContent = data.teamBlue.score;
             document.getElementById('res-orange-name').textContent = data.teamOrange.name;
             document.getElementById('res-orange-score').textContent = data.teamOrange.score;
+            
+            const framesEl = document.getElementById('res-frames');
+            if (framesEl) framesEl.textContent = data.framesCount + " frames décryptées";
 
             document.getElementById('replay-loading').style.display = 'none';
             document.getElementById('replay-results').style.display = 'block';
