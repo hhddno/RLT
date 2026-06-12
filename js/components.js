@@ -52,12 +52,17 @@ window.Components = {
                 <i data-lucide="heart" ${isFav ? 'style="fill:var(--danger)"' : ''}></i>
             </button>
             <img src="${player.avatar}" alt="${player.name}" class="player-avatar">
-            <h3 class="player-name">${player.name}</h3>
-            <span class="player-team">${player.team}</span>
+            <h3 class="player-name">${player.country || ''} ${player.name}</h3>
+            <span class="player-team">${player.team} • ${player.region || ''}</span>
+            <div style="display:flex;gap:0.4rem;margin-bottom:0.8rem;">
+                <span class="badge" style="background:rgba(0,229,255,0.1);color:var(--accent-blue);">${player.role || 'Flex'}</span>
+                <span class="badge" style="background:rgba(255,107,0,0.1);color:var(--accent-orange);">⭐ ${player.stats.rating || '—'}</span>
+            </div>
             <div class="player-stats-mini">
-                <div class="stat-item"><span class="stat-value dpm-highlight">${player.stats.dpm}</span><span class="stat-label">DPM</span></div>
-                <div class="stat-item"><span class="stat-value">${player.stats.goalsPerGame}</span><span class="stat-label">Buts/G</span></div>
+                <div class="stat-item"><span class="stat-value" style="color:var(--accent-blue)">${player.stats.goalsPerGame}</span><span class="stat-label">Buts/G</span></div>
+                <div class="stat-item"><span class="stat-value">${player.stats.assistsPerGame}</span><span class="stat-label">Passes/G</span></div>
                 <div class="stat-item"><span class="stat-value">${player.stats.savesPerGame}</span><span class="stat-label">Arrêts/G</span></div>
+                <div class="stat-item"><span class="stat-value" style="color:var(--accent-orange)">${player.stats.shotPct || player.stats.shotPercentage || '—'}%</span><span class="stat-label">Précision</span></div>
             </div>
         </div>`;
     },
@@ -146,6 +151,7 @@ window.Components = {
         const player = PLAYERS.find(p => p.id === playerId);
         if (!player) return `<h2>Joueur introuvable</h2>`;
         const isFav = window.Auth ? window.Auth.isFavorite('players', player.id) : false;
+        const shotPct = player.stats.shotPct || player.stats.shotPercentage || 0;
         return `
         <button class="btn-back fade-in" onclick="window.navigate('players')"><i data-lucide="arrow-left"></i> Retour aux joueurs</button>
         <div class="detail-header fade-in" style="position:relative;">
@@ -154,22 +160,26 @@ window.Components = {
             </button>
             <img src="${player.avatar}" alt="${player.name}" class="detail-avatar">
             <div class="detail-info">
-                <h1>${player.name}</h1>
+                <h1>${player.country || ''} ${player.name}</h1>
                 <p>${player.team} — ${player.region}</p>
+                <span style="color:var(--text-muted);font-size:0.9rem;">${player.realName || ''}</span>
                 <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
                     <span class="badge badge-completed">${player.role}</span>
-                    <span class="badge" style="background:rgba(0,229,255,0.1);color:var(--accent-blue);">${player.stats.gamesPlayed} matchs</span>
+                    <span class="badge" style="background:rgba(0,229,255,0.1);color:var(--accent-blue);">${player.stats.gamesPlayed} matchs joués</span>
+                    <span class="badge" style="background:rgba(255,107,0,0.1);color:var(--accent-orange);">⭐ Rating: ${player.stats.rating || '—'}</span>
                 </div>
             </div>
         </div>
         <h2 style="margin-bottom:1.25rem;font-family:var(--font-heading)" class="fade-in">Statistiques par Match</h2>
         <div class="stat-grid fade-in" style="animation-delay:0.1s">
-            <div class="stat-box"><i data-lucide="flame"></i><span class="stat-value dpm-highlight" style="font-size:2.2rem">${player.stats.dpm}</span><span class="stat-label">Démos/Minute</span></div>
-            <div class="stat-box"><i data-lucide="target"></i><span class="stat-value" style="font-size:2.2rem">${player.stats.goalsPerGame}</span><span class="stat-label">Buts/Match</span></div>
+            <div class="stat-box"><i data-lucide="star"></i><span class="stat-value" style="font-size:2.2rem;color:var(--accent-orange)">${player.stats.rating || '—'}</span><span class="stat-label">Rating</span></div>
+            <div class="stat-box"><i data-lucide="target"></i><span class="stat-value" style="font-size:2.2rem;color:var(--accent-blue)">${player.stats.goalsPerGame}</span><span class="stat-label">Buts/Match</span></div>
             <div class="stat-box"><i data-lucide="share-2"></i><span class="stat-value" style="font-size:2.2rem">${player.stats.assistsPerGame}</span><span class="stat-label">Passes Déc.</span></div>
             <div class="stat-box"><i data-lucide="shield"></i><span class="stat-value" style="font-size:2.2rem">${player.stats.savesPerGame}</span><span class="stat-label">Arrêts</span></div>
+            <div class="stat-box"><i data-lucide="crosshair"></i><span class="stat-value" style="font-size:2.2rem">${player.stats.shotsPerGame || '—'}</span><span class="stat-label">Tirs/Match</span></div>
+            <div class="stat-box"><i data-lucide="percent"></i><span class="stat-value" style="font-size:2.2rem">${shotPct}%</span><span class="stat-label">Précision Tirs</span></div>
             <div class="stat-box"><i data-lucide="activity"></i><span class="stat-value" style="font-size:2.2rem">${player.stats.scorePerGame}</span><span class="stat-label">Score/Match</span></div>
-            <div class="stat-box"><i data-lucide="crosshair"></i><span class="stat-value" style="font-size:2.2rem">${player.stats.shotPercentage}%</span><span class="stat-label">Précision Tirs</span></div>
+            <div class="stat-box"><i data-lucide="flame"></i><span class="stat-value dpm-highlight" style="font-size:2.2rem">${player.stats.dpm}</span><span class="stat-label">Démos/Min</span></div>
         </div>
         <div class="card fade-in" style="animation-delay:0.15s;margin-top:2rem;display:flex;flex-direction:column;align-items:center;">
             <h2 style="margin-bottom:1.25rem;font-family:var(--font-heading)">Radar de Performance</h2>

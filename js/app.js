@@ -77,17 +77,18 @@ class App {
         if (!player || !canvas) return;
 
         const data = [
-            (player.stats.dpm / 3.0) * 100,
-            (player.stats.goalsPerGame / 1.5) * 100,
-            (player.stats.assistsPerGame / 1.5) * 100,
+            (player.stats.goalsPerGame / 1.2) * 100,
+            (player.stats.assistsPerGame / 1.0) * 100,
             (player.stats.savesPerGame / 2.5) * 100,
-            (player.stats.shotPercentage / 40.0) * 100
+            ((player.stats.shotPct || player.stats.shotPercentage || 0) / 40.0) * 100,
+            ((player.stats.rating || 1.0) / 1.6) * 100,
+            (player.stats.dpm / 0.5) * 100
         ].map(v => Math.min(v, 100));
 
         new Chart(canvas, {
             type: 'radar',
             data: {
-                labels: ['Démos', 'Buts', 'Passes', 'Arrêts', 'Précision'],
+                labels: ['Buts', 'Passes', 'Arrêts', 'Précision', 'Rating', 'Démos'],
                 datasets: [{
                     label: player.name,
                     data: data,
