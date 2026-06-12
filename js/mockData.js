@@ -208,12 +208,12 @@ window.RLData.UPCOMING = [
 // HITBOXES & CARS
 // ═══════════════════════════════════════════
 window.RLData.HITBOXES = [
-    { id: 'h-octane', name: 'Octane', length: 118.01, width: 84.20, height: 36.16, usage: 72, cars: ['Octane', 'Fennec', 'Twinzer', 'Marauder', 'Takumi', 'Zippy', 'Scarab', 'Proteus', 'Vulcan', 'Armadillo'] },
-    { id: 'h-dominus', name: 'Dominus', length: 127.93, width: 83.28, height: 31.30, usage: 15, cars: ['Dominus', 'Batmobile (1989)', 'DeLorean', 'Aftershock', 'Masamune', 'Ripper', 'Ice Charger', 'Ecto-1'] },
-    { id: 'h-plank', name: 'Plank', length: 128.82, width: 84.67, height: 29.39, usage: 5, cars: ['Batmobile (2016)', 'Mantis', 'Paladin', 'Twin Mill III', 'Centio'] },
-    { id: 'h-breakout', name: 'Breakout', length: 131.49, width: 80.52, height: 30.30, usage: 4, cars: ['Breakout', 'Breakout Type-S', 'Animus GP', 'Samurai'] },
-    { id: 'h-hybrid', name: 'Hybrid', length: 127.02, width: 82.19, height: 34.16, usage: 3, cars: ['Endo', 'Venom', 'X-Devil', 'Jäger 619 RS', 'Skyline', 'Esper'] },
-    { id: 'h-merc', name: 'Merc', length: 120.72, width: 76.71, height: 41.66, usage: 1, cars: ['Merc', 'Battle Bus', 'Ford F-150'] }
+    { id: 'h-octane', name: 'Octane', length: 118.01, width: 84.20, height: 36.16, usage: 72, winRate: 51.2, goalsPerGame: 0.85, savesPerGame: 1.45, mvpPercentage: 42, cars: ['Octane', 'Fennec', 'Twinzer', 'Marauder', 'Takumi', 'Zippy', 'Scarab', 'Proteus', 'Vulcan', 'Armadillo'] },
+    { id: 'h-dominus', name: 'Dominus', length: 127.93, width: 83.28, height: 31.30, usage: 15, winRate: 49.8, goalsPerGame: 0.92, savesPerGame: 1.25, mvpPercentage: 28, cars: ['Dominus', 'Batmobile (1989)', 'DeLorean', 'Aftershock', 'Masamune', 'Ripper', 'Ice Charger', 'Ecto-1'] },
+    { id: 'h-plank', name: 'Plank', length: 128.82, width: 84.67, height: 29.39, usage: 5, winRate: 48.5, goalsPerGame: 0.88, savesPerGame: 1.20, mvpPercentage: 12, cars: ['Batmobile (2016)', 'Mantis', 'Paladin', 'Twin Mill III', 'Centio'] },
+    { id: 'h-breakout', name: 'Breakout', length: 131.49, width: 80.52, height: 30.30, usage: 4, winRate: 50.1, goalsPerGame: 0.95, savesPerGame: 1.15, mvpPercentage: 10, cars: ['Breakout', 'Breakout Type-S', 'Animus GP', 'Samurai'] },
+    { id: 'h-hybrid', name: 'Hybrid', length: 127.02, width: 82.19, height: 34.16, usage: 3, winRate: 47.9, goalsPerGame: 0.82, savesPerGame: 1.30, mvpPercentage: 6, cars: ['Endo', 'Venom', 'X-Devil', 'Jäger 619 RS', 'Skyline', 'Esper'] },
+    { id: 'h-merc', name: 'Merc', length: 120.72, width: 76.71, height: 41.66, usage: 1, winRate: 52.4, goalsPerGame: 0.75, savesPerGame: 1.80, mvpPercentage: 2, cars: ['Merc', 'Battle Bus', 'Ford F-150'] }
 ];
 
 // ═══════════════════════════════════════════

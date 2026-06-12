@@ -338,10 +338,30 @@ window.Components = {
         
         const hitboxHtml = hitboxes.sort((a,b) => b.usage - a.usage).map((h, i) => `
             <div class="match-item fade-in" style="flex-direction:column;align-items:flex-start;animation-delay:${i * 0.05}s">
-                <div style="display:flex;justify-content:space-between;width:100%;margin-bottom:0.5rem;">
-                    <span style="font-family:var(--font-heading);font-weight:900;font-size:1.2rem;color:var(--accent-blue);">${h.name}</span>
+                <div style="display:flex;justify-content:space-between;width:100%;margin-bottom:1rem;">
+                    <span style="font-family:var(--font-heading);font-weight:900;font-size:1.3rem;color:var(--accent-blue);">${h.name}</span>
                     <span class="badge" style="background:rgba(255,107,0,0.1);color:var(--accent-orange);">Utilisation Pro : ${h.usage}%</span>
                 </div>
+                
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:1rem;width:100%;margin-bottom:1rem;background:rgba(0,0,0,0.2);padding:1rem;border-radius:var(--radius-sm);">
+                    <div style="text-align:center;">
+                        <div style="font-size:1.4rem;font-weight:900;color:${h.winRate > 50 ? 'var(--accent-blue)' : 'var(--text-main)'}">${h.winRate}%</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Winrate</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:1.4rem;font-weight:900;">${h.goalsPerGame}</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Buts/Game</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:1.4rem;font-weight:900;">${h.savesPerGame}</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Arrêts/Game</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:1.4rem;font-weight:900;color:var(--accent-orange);">${h.mvpPercentage}%</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Taux de MVP</div>
+                    </div>
+                </div>
+
                 <div style="display:flex;gap:1.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem;">
                     <span>📐 Longueur: ${h.length}</span>
                     <span>📏 Largeur: ${h.width}</span>
