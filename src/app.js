@@ -162,7 +162,12 @@ class App {
         try {
             const data = await window.ReplayParser.parse(file);
             
-            document.getElementById('res-filename').textContent = data.filename + ' (' + data.size + ')';
+            document.getElementById('res-filename').innerHTML = `
+                <strong>${data.filename}</strong> (${data.size})<br/>
+                <span style="font-size: 0.9em; color: var(--text-muted);">
+                    Map: ${data.mapName || 'Inconnu'} &bull; Date: ${data.date || 'Inconnu'}
+                </span>
+            `;
             document.getElementById('res-guid').textContent = data.matchGuid;
             document.getElementById('res-blue-name').textContent = data.teamBlue.name;
             document.getElementById('res-blue-score').textContent = data.teamBlue.score;

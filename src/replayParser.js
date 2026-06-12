@@ -33,12 +33,8 @@ class ReplayParser {
                     const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
                     
                     // Extract data from the Boxcars JSON structure
-                    let props = replayData.properties || {};
-                    
-                    // Reconstruct properties from subtr-actor's meta if available
-                    if (framesData && framesData.meta && framesData.meta.all_headers) {
-                        const newProps = {};
-                        
+                    let props = {};
+                    if (Array.isArray(replayData.properties)) {
                         const parseHeaderProp = (val) => {
                             if (!val) return null;
                             if (val.Int !== undefined) return val.Int;
@@ -67,10 +63,11 @@ class ReplayParser {
                             return val;
                         };
 
-                        framesData.meta.all_headers.forEach(h => {
-                            newProps[h[0]] = parseHeaderProp(h[1]);
+                        replayData.properties.forEach(h => {
+                            if (Array.isArray(h) && h.length === 2) {
+                                props[h[0]] = parseHeaderProp(h[1]);
+                            }
                         });
-                        props = newProps;
                     }
                     
                     // Safely extract scores, boxcars sometimes nests them in 'int'
@@ -81,12 +78,15 @@ class ReplayParser {
                     
                     const matchGuid = props.Id || props.MatchType || 'Inconnu';
                     const matchDate = props.Date || new Date().toLocaleDateString();
+                    const mapName = props.MapName || 'Inconnu';
+                    const replayName = props.ReplayName || file.name;
                     
                     resolve({
-                        filename: file.name,
+                        filename: replayName,
                         size: fileSizeMb + ' MB',
                         matchGuid: matchGuid,
                         date: matchDate,
+                        mapName: mapName,
                         teamBlue: { name: 'Équipe Bleue', score: teamBlueScore },
                         teamOrange: { name: 'Équipe Orange', score: teamOrangeScore },
                         // Check subtr-actor framesData first, otherwise fallback to boxcars raw network_frames
