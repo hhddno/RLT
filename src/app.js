@@ -1,3 +1,5 @@
+import { MinimapEngine } from './minimap.js';
+
 const Components = window.Components;
 
 class App {
@@ -6,6 +8,7 @@ class App {
         this.currentParam = null;
         this.container = document.getElementById('view-container');
         this.navItems = document.querySelectorAll('.nav-item');
+        this.minimap = null;
         this.init();
     }
 
@@ -218,6 +221,15 @@ class App {
 
             document.getElementById('replay-loading').style.display = 'none';
             document.getElementById('replay-results').style.display = 'block';
+            
+            // Initialize MinimapEngine and load frames
+            if (!this.minimap) {
+                this.minimap = new MinimapEngine('replay-canvas');
+            }
+            // `data.framesData` is from subtr-actor get_replay_frames_data
+            // `data.raw.network_frames` is the raw json parsed by parse_replay
+            this.minimap.loadData(data.framesData, data.raw.network_frames);
+            
             window.showToast("Fichier décrypté avec succès !", "success");
         } catch (e) {
             document.getElementById('replay-loading').style.display = 'none';

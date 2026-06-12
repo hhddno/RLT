@@ -443,9 +443,29 @@ window.Components = {
                 
                 <div style="margin-top:2rem;text-align:center;padding:2rem;background:rgba(255,255,255,0.02);border-radius:var(--radius-md);">
                     <i data-lucide="cpu" style="width:32px;height:32px;color:var(--accent-blue);margin-bottom:1rem;"></i>
-                    <h3 style="color:var(--accent-blue);">Propulsé par WebAssembly (boxcars)</h3>
+                    <h3 style="color:var(--accent-blue);">Propulsé par WebAssembly (@rlrml/subtr-actor)</h3>
                     <p style="font-size:1.1rem;color:var(--text-main);font-weight:700;margin-top:0.5rem;" id="res-frames"></p>
-                    <p style="font-size:0.85rem;color:var(--text-muted);max-width:400px;margin:0.5rem auto;">Si 0 frames sont décryptées, c'est que le fichier provient d'une mise à jour trop récente. Les statistiques globales du match sont toutefois extraites ci-dessous !</p>
+                    <p style="font-size:0.85rem;color:var(--text-muted);max-width:400px;margin:0.5rem auto;">Le moteur a extrait avec succès l'intégralité du Network Data.</p>
+                </div>
+
+                <!-- 2D Minimap Player -->
+                <div style="margin-top:2rem;">
+                    <h3 style="margin-bottom:1rem;font-family:var(--font-heading);color:var(--accent-orange);">Analyse Stratégique (Minimap 2D)</h3>
+                    <div style="background:#0F172A;border-radius:var(--radius-lg);padding:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                        <div style="position:relative;width:100%;aspect-ratio:1.4/1;background:url('https://rocketleague.com/favicon.ico') center/cover;border:2px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;background-color:#1E293B;">
+                            <!-- The actual Canvas -->
+                            <canvas id="replay-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
+                        </div>
+                        
+                        <!-- Playback Controls -->
+                        <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem;">
+                            <button id="btn-play-pause" style="background:var(--accent-blue);border:none;color:white;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                                <i data-lucide="play" style="width:20px;height:20px;"></i>
+                            </button>
+                            <input type="range" id="timeline-slider" min="0" max="100" value="0" style="flex:1;accent-color:var(--accent-orange);cursor:pointer;">
+                            <span id="timeline-time" style="font-family:monospace;font-size:0.9rem;color:var(--text-muted);min-width:60px;text-align:right;">0:00</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Detailed Stats Section -->

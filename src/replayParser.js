@@ -1,4 +1,7 @@
-import { BoxcarsParser, CrcCheck, NetworkParse, initBoxcars } from './boxcars/boxcars_js.js';
+import initSubtrActor, { parse_replay, get_replay_frames_data } from '@rlrml/subtr-actor';
+import subtrWasmUrl from '@rlrml/subtr-actor/rl_replay_subtr_actor_bg.wasm?url';
+
+let subtrInitialized = false;
 
 class ReplayParser {
     static async parse(file) {
@@ -6,21 +9,26 @@ class ReplayParser {
             const reader = new FileReader();
             reader.onload = async (e) => {
                 try {
-                    await initBoxcars();
+                    if (!subtrInitialized) {
+                        await initSubtrActor(subtrWasmUrl);
+                        subtrInitialized = true;
+                    }
+                    
                     const buffer = e.target.result;
                     const uint8Array = new Uint8Array(buffer);
                     console.log('Replay file loaded, size:', uint8Array.length, 'bytes');
                     if (uint8Array.length === 0) throw new Error("Fichier vide.");
                     
-                    // Decode using WebAssembly (boxcars.js)
-                    // Boxcars uses a consuming builder pattern, so methods return a new wrapper!
-                    let parser = new BoxcarsParser(uint8Array);
-                    parser = parser.setCrcCheck(CrcCheck.Never); // Speed up parsing by skipping CRC
-                    parser = parser.setNetworkParse(NetworkParse.IgnoreOnError); // Prevent crash on new RL updates
+                    // Decode using WebAssembly (subtr-actor)
+                    const replayData = parse_replay(uint8Array);
                     
-                    // The WASM parser returns a full JSON object of the replay
-                    // parse() consumes the parser, so no need to free() it afterwards
-                    const replayData = parser.parse();
+                    // Try to extract frame-by-frame stats/timeline if possible
+                    let framesData = null;
+                    try {
+                        framesData = get_replay_frames_data(uint8Array);
+                    } catch (err) {
+                        console.warn("Could not extract frame data:", err);
+                    }
                     
                     const fileSizeMb = (file.size / (1024 * 1024)).toFixed(2);
                     
@@ -37,12 +45,13 @@ class ReplayParser {
                         date: props.Date || new Date().toLocaleDateString(),
                         teamBlue: { name: 'Équipe Bleue', score: teamBlueScore },
                         teamOrange: { name: 'Équipe Orange', score: teamOrangeScore },
-                        // Now we also have the network_frames!
-                        framesCount: replayData.network_frames ? replayData.network_frames.frames.length : 0,
-                        raw: replayData
+                        // Check subtr-actor framesData first, otherwise fallback to boxcars raw network_frames
+                        framesCount: framesData ? Object.keys(framesData).length : (replayData.network_frames ? replayData.network_frames.frames.length : 0),
+                        raw: replayData,
+                        framesData: framesData
                     });
                 } catch (error) {
-                    reject(new Error("Erreur WebAssembly (Boxcars) : " + error.message));
+                    reject(new Error("Erreur WebAssembly (subtr-actor) : " + error.message));
                 }
             };
             reader.onerror = () => reject(new Error("Erreur de lecture du fichier."));

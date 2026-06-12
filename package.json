@@ -29,6 +29,8 @@
     "vite-plugin-wasm": "^3.6.0"
   },
   "dependencies": {
+    "@rlrml/player": "^0.12.0",
+    "@rlrml/subtr-actor": "^0.12.0",
     "boxcars.js": "^1.0.6"
   }
 }
